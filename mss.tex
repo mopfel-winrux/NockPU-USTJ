@@ -8,9 +8,9 @@
 
 \addbibresource{mss.bib}
 
-\newcommand{\authorname}{John Smith}
+% \newcommand{\authorname}{John Smith}
 \newcommand{\authorpatp}{\patp{~mopfel-winrux}}
-\newcommand{\affiliation}{Native Planet}
+\newcommand{\affiliation}{Native Planet, SWPS}
 
 %  Make first page footer:
 \fancypagestyle{firststyle}{%
@@ -32,7 +32,7 @@
 
 %%MANUSCRIPT
 \title{Implementation of Nock Combinator Logic in Hardware: The NockPU Project}
-\author{\authorname~\authorpatp \\ \affiliation}
+\author{\authorpatp \\ \affiliation}
 \date{}
 
 \begin{document}
@@ -41,7 +41,7 @@
 \thispagestyle{firststyle}
 
 \begin{abstract}
-This paper presents the design, implementation, and evaluation of NockPU, a hardware-based processor that directly executes Nock, a minimalist combinator calculus that serves as the foundation for the Urbit computing platform. While most Nock interpreters operate in software, this research explores the opportunities and challenges of implementing Nock's combinator operations directly in hardware using an FPGA. The paper details the design decisions involved in representing nouns in memory, the stackless approach to tree traversal, and the architectural components required for efficient execution. Performance analysis reveals both the advantages of hardware-based execution for certain operations and the significant memory challenges inherent to combinator reduction. The NockPU architecture demonstrates new possibilities for specialized functional hardware that maintains semantic equivalence with software implementations while potentially offering advantages in determinism and power efficiency. This work contributes to the broader understanding of hardware-based approaches to executing non-traditional computation models while highlighting specific optimization techniques for combinator reduction.
+This paper presents the design, implementation, and evaluation of NockPU, a hardware processor that directly executes Nock, a minimalist combinator calculus serving as the foundation for the Urbit computing platform. The research demonstrates the feasibility of implementing all twelve Nock operations in hardware using FPGA-based graph reduction techniques. Key architectural decisions include a cell-based memory representation optimized for 64-bit words, stackless tree traversal using breadcrumb techniques, and integrated Cheney-style copying garbage collection. Performance analysis identifies two primary challenges: excessive memory consumption due to intermediate structure creation during reduction, and computational complexity arising from the graph transformation approach required by combinator reduction. The implemented garbage collector successfully addresses memory consumption issues, preventing system crashes during complex computations. While computational efficiency remains challenging compared to traditional architectures, the NockPU establishes that hardware Nock implementation is viable and provides a foundation for specialized functional computation with advantages in determinism and semantic clarity.
 \end{abstract}
 
 % We will adjust page numbering in final editing.
@@ -56,13 +56,13 @@ Combinator calculi represent a fundamental approach to computation based on the 
 
 Implementing Nock in hardware presents unique challenges fundamentally different from traditional assembly languages. While conventional processors operate on byte buffers stored in linear memory arrays, Nock computation operates on \textit{nouns} - recursive tree structures that exist as linked data rather than contiguous memory blocks. This fundamental difference means that traditional hardware architectures, optimized for sequential memory access patterns and fixed-width data types, are poorly suited for the tree traversal and dynamic memory allocation patterns inherent to Nock execution. The challenge lies not merely in implementing the Nock operations themselves, but in developing memory representations and traversal mechanisms that can efficiently handle the recursive, pointer-based data structures that define Nock's computational model.
 
-The motivation behind this research was initially quite straightforward: to address skepticism about whether Nock could be effectively implemented in hardware. However, the investigation quickly revealed deeper insights about the relationship between combinator reduction and hardware architecture, along with opportunities to develop novel memory management techniques for tree-based computation.
+The motivation behind this research was initially quite straightforward: to address skepticism about whether Nock could be effectively implemented in hardware.
 
-\subsection{Research Context and Gap}
+\subsection{Related Work and Motivation}
 
 Hardware implementation of functional languages has historical precedent, with notable examples including the SKIM (S, K, I reduction machine) developed at Cambridge in the 1970s and more recent work on The Reduceron at the University of York. However, these projects have typically focused on more traditional functional programming languages rather than the minimal, axiomatic approach of Nock. Additionally, most prior research has not sufficiently addressed the challenges of scaling such systems to utilize both on-chip and off-chip memory effectively.
 
-\subsection{Research Questions and Objectives}
+\subsection{Project Goals and Approach}
 
 This project aimed to answer several key questions:
 
@@ -402,6 +402,8 @@ The memory architecture is designed to optimize the prevalent access patterns in
 
 \section{Evaluation and Analysis}
 
+The NockPU evaluation encompasses both functional verification and performance analysis to assess the viability of hardware-based Nock execution. Testing methodology focuses on semantic equivalence validation through comparison with reference implementations, while performance analysis examines execution characteristics, memory usage patterns, and computational complexity across representative benchmark programs. The evaluation identifies both the capabilities and limitations of the current implementation, providing a foundation for understanding the tradeoffs inherent in hardware combinator reduction.
+
 \subsection{Test Methodology}
 
 \subsubsection{Test Bench Design}
@@ -428,37 +430,58 @@ Performance analysis was conducted using a variety of benchmark programs, includ
 
 \begin{enumerate}
   \item \textbf{Decrement Operation}: A classic test case that requires recursive application of Nock operators to perform what would be a single instruction on a traditional CPU.
-  \item \textbf{Fibonacci Calculation}: Tests recursive function evaluation performance.
+  \item \textbf{Ackermann Function}: Tests recursive function evaluation performance with nested recursion patterns.
   \item \textbf{Equality Testing}: Evaluates the performance of tree comparison operations.
 \end{enumerate}
 
+% TODO: Add performance metrics table
+% \begin{table}[h]
+% \centering
+% \caption{NockPU Performance Metrics for Representative Operations}
+% \label{tab:performance-metrics}
+% \begin{tabular}{|l|l|r|r|r|}
+% \hline
+% \textbf{Operation} & \textbf{Input/Parameters} & \textbf{Clock Cycles} & \textbf{Memory Words} & \textbf{Execution Time} \\
+% \hline
+% Decrement & n=3 & [FILL] & [FILL] & [FILL] μs \\
+% \hline
+% Decrement & n=10 & [FILL] & [FILL] & [FILL] ms \\
+% \hline
+% Ackermann & A(2,2) & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Ackermann & A(3,2) & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Equality Test & Simple atoms & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Equality Test & Complex trees & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Slot Operation & Depth 3 tree & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Slot Operation & Depth 5 tree & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Conditional & Simple branch & [FILL] & [FILL] & [FILL] \\
+% \hline
+% Conditional & Complex branch & [FILL] & [FILL] & [FILL] \\
+% \hline
+% \end{tabular}
+% \end{table}
+
 \noindent
-Results show that simple operations complete in hundreds of cycles, while more complex operations requiring extensive tree manipulation can take thousands to millions of cycles.
+Results show that simple operations complete in hundreds of cycles, while more complex operations requiring extensive tree manipulation can take thousands to millions of cycles. All performance measurements were conducted at a 50MHz clock frequency. Direct performance comparisons with software Nock interpreters are not meaningful due to the significant clock frequency differences (50MHz vs typical 3GHz+ processors), making architectural and implementation approach analysis more relevant than raw performance metrics.
 
 \subsubsection{Memory Usage Patterns}
 
 Memory usage analysis reveals a clear pattern: Nock programs quickly consume memory due to the graph reduction approach. Even simple operations like decrement create multiple intermediate structures.
 
-For example, decrementing the number 3 created approximately 640 milliseconds worth of memory operations and used a significant portion of available memory, demonstrating the memory-intensive nature of combinator reduction.
-
-\subsubsection{Operation Complexity}
-
-The complexity of different operations varies significantly:
-
-\begin{itemize}
-  \item \textbf{Simple Operations} (constants, slot access): O(log n) in tree depth
-  \item \textbf{Arithmetic Operations} (increment): O(1) when directly implemented
-  \item \textbf{Recursive Operations} (decrement, equality): O(n) to O(2\textsuperscript{n}) depending on input size
-  \item \textbf{Conditional Operations}: Particularly expensive due to tree reconstruction
-\end{itemize}
+For example, decrementing the number 3 required 32,100 clock cycles (642 microseconds at 50MHz), while decrementing the number 10 required 700,000 clock cycles (14 milliseconds at 50MHz) and consumed more than 800 memory words, demonstrating the memory-intensive nature of combinator reduction and its exponential growth characteristics.
 
 \subsection{Limitations and Challenges}
 
 \subsubsection{Memory Consumption Issues}
 
-The most significant limitation encountered was excessive memory consumption. Without garbage collection, even moderately complex programs quickly exhaust available memory due to the creation of intermediate structures during reduction.
+The most significant limitation initially encountered was excessive memory consumption due to the creation of intermediate structures during reduction. Early testing revealed that even moderately complex programs would quickly exhaust available memory without proper memory management.
 
-For instance, a decrement operation on the number 10 was found to crash the system due to memory exhaustion, highlighting the critical need for memory management.
+For instance, a decrement operation on the number 10 would crash the system due to memory exhaustion. This limitation led to the implementation of the Cheney-style copying garbage collector described in Section 3.4.5, which successfully addresses these memory management challenges by reclaiming unreachable intermediate structures and maintaining system stability during complex computations.
 
 \subsubsection{Performance Bottlenecks}
 
@@ -478,9 +501,24 @@ The implementation of the conditional operation (\texttt{*[a 6 b c d]}) proved p
 
 \subsection{Arbitrary-size Atom Support}
 
-While the current implementation supports 28-bit atoms, supporting arbitrarily large atoms is necessary for full Nock compatibility. A proposed approach involves using a linked representation where multiple words store segments of a large atom, with special tag bits indicating continuation.
+While the current implementation supports 28-bit atoms, supporting arbitrarily large atoms is necessary for full Nock compatibility. The proposed implementation uses a structured approach where large atoms are represented as follows:
 
-This enhancement would require modifications to all operations that manipulate atoms to handle the multi-word representation.
+\begin{itemize}
+  \item \textbf{Header Cell}: The head contains the length of the large atom, while the tail serves as workspace for the interpreter
+  \item \textbf{Data Storage}: The address immediately following the header contains the first 64 bits of the large atom in little-endian format, with subsequent addresses containing additional 64-bit segments as needed
+\end{itemize}
+
+\noindent
+This design requires specific modifications to atom-manipulating operations:
+
+\begin{enumerate}
+  \item \textbf{Increment Operation}: Must reallocate the entire large atom and perform increment with carry propagation across all 64-bit segments, ensuring proper handling of size changes when carries extend the atom length.
+  \item \textbf{Comparison Operations}: Equality testing must traverse the complete atom representation, comparing both length and all data segments to ensure accurate results.
+  \item \textbf{Garbage Collection}: The existing Cheney-style collector can handle large atoms naturally by copying the header and all associated data segments during the copying phase, with no fundamental changes to the collection algorithm.
+\end{enumerate}
+
+\noindent
+The memory allocation system remains unchanged, as large atoms are allocated as contiguous blocks following the header cell.
 
 \subsection{Hardware Jetting Strategy}
 
@@ -495,21 +533,13 @@ This enhancement would require modifications to all operations that manipulate a
 \noindent
 This hybrid approach could dramatically improve performance for common operations while maintaining semantic equivalence with pure Nock.
 
-\subsection{ASIC Implementation Considerations}
-
-While the current implementation targets FPGAs, future work could explore an Application-Specific Integrated Circuit (ASIC) implementation. This would offer potential advantages in power efficiency and performance but would require significant additional design work and manufacturing costs.
-
-\subsection{Power Efficiency Potential}
-
-Preliminary analysis suggests that a dedicated NockPU could offer significant power efficiency advantages over general-purpose CPUs running Nock interpreters. Future work should include comprehensive power analysis and optimization of the architecture for low-power operation.
-
 \section{Discussion and Implications}
 
 \subsection{Theoretical Implications for Computer Architecture}
 
-The NockPU project raises interesting questions about the relationship between computation models and hardware architecture. Traditional von Neumann architectures are optimized for imperative, state-based computation, while the NockPU demonstrates an alternative approach optimized for functional, stateless computation.
+The NockPU project provides insights into the relationship between computation models and hardware architecture. Traditional von Neumann architectures are optimized for imperative, state-based computation, while the NockPU represents an approach tailored for functional, stateless computation.
 
-This exploration suggests that there may be benefits to developing specialized architectures for different computational paradigms, rather than forcing all computation onto a single architectural model.
+This work suggests that specialized architectures for specific computational paradigms may offer advantages over general-purpose solutions in certain contexts. The NockPU's design choices, such as the stackless traversal mechanism and integrated garbage collection, illustrate how hardware can be adapted to better support the patterns inherent in combinator reduction.
 
 \subsection{Practical Applications}
 
@@ -517,9 +547,15 @@ This exploration suggests that there may be benefits to developing specialized a
 
 The deterministic nature of Nock, combined with the potential power efficiency of specialized hardware, suggests applications in low-power computing environments where predictability is valued over raw performance.
 
+Preliminary analysis suggests that a dedicated NockPU could offer significant power efficiency advantages over general-purpose CPUs running Nock interpreters. The specialized nature of the architecture eliminates much of the overhead associated with general-purpose instruction decoding, branch prediction, and speculative execution. Additionally, the deterministic execution model prevents the power consumption variability that characterizes modern CPUs with dynamic frequency scaling and complex power management.
+
+Future work should include comprehensive power analysis and optimization of the architecture for low-power operation, particularly focusing on minimizing memory access energy and optimizing the garbage collection process for power efficiency.
+
 \subsubsection{Verifiable Computing}
 
 The simplicity and determinism of the NockPU architecture could make it easier to formally verify than complex general-purpose CPUs, opening possibilities for applications requiring high assurance of correctness.
+
+The limited instruction set, deterministic execution model, and absence of speculative execution or complex branch prediction reduce the verification burden compared to modern processors. Applications in safety-critical systems, cryptographic processing, or environments requiring audit trails could benefit from this simplified verification process. However, the practical deployment of such systems would need to balance the verification advantages against the performance limitations inherent in the current implementation.
 
 \subsection{Comparison with Traditional Architectures}
 
@@ -536,11 +572,13 @@ These tradeoffs suggest that the NockPU and similar architectures may find their
 
 \section{Conclusion}
 
-The NockPU project has demonstrated the feasibility of implementing the Nock combinator calculus directly in hardware, while highlighting both the challenges and opportunities presented by such an approach. The stackless traversal mechanism and specialized memory representation provide a foundation for efficient execution of combinator operations, while the challenges of memory consumption and performance bottlenecks point to areas for future improvement.
+The NockPU project has successfully demonstrated the feasibility of implementing the Nock combinator calculus directly in hardware, providing concrete architectural solutions for functional computation while identifying the fundamental challenges inherent to combinator reduction.
 
-This work contributes to the broader understanding of hardware-based approaches to functional computation and offers specific insights into the implementation of combinator reduction systems. While a hardware Nock implementation may not compete with optimized software interpreters for general-purpose computing, it offers advantages in determinism, potential power efficiency, and semantic clarity.
+This work presents a complete hardware implementation of Nock using established techniques adapted for combinator reduction. The stackless tree traversal mechanism enables efficient navigation of Nock's recursive tree structures without external stack management. The cell-based memory representation optimizes 64-bit words for Nock's binary tree structures, with 28-bit nouns and 8 tag bits providing efficient metadata management. The integration of Cheney-style copying garbage collection directly into the processor architecture demonstrates that memory management can be successfully embedded as a hardware feature rather than remaining a software concern.
 
-Future work building on this foundation has the potential to address the identified limitations and further explore the unique capabilities of specialized hardware for functional computation paradigms.
+The research identifies two primary challenges to efficient hardware Nock execution: excessive memory consumption due to intermediate structure creation during combinator reduction, and computational complexity arising from the graph transformation approach required by Nock's semantic model. The first challenge is successfully addressed through the implemented garbage collector, which prevents system crashes and maintains stability during complex computations. The second remains an area for future optimization.
+
+The implementation demonstrates that all twelve Nock operations can be realized in hardware through graph reduction techniques, establishing a complete foundation for Nock computation. While computational efficiency remains challenging, the core architectural approach—particularly the integration of garbage collection and cell-based memory management—provides a viable foundation for specialized functional computation that offers advantages in determinism and semantic clarity over general-purpose architectures.
 
 \printbibliography
 \end{document}
