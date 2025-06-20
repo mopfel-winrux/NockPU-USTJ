@@ -166,38 +166,47 @@ This representation allows for efficient storage of Nock's binary tree structure
 
 \subsubsection{Tag Bit Utilization}
 
-% TODO: Add Figure - Tag Bit Layout Diagram
-% Figure should show 64-bit word with bit positions labeled
-% Include example with actual values for clarity
+Tag bits represent auxiliary metadata embedded within memory words to support architectural features beyond basic data storage. In traditional von Neumann architectures, such metadata is typically maintained in separate control structures or registers. However, the NockPU's specialized design for combinator reduction necessitates embedding control information directly within the memory representation to enable efficient stackless traversal and cell-based addressing.
 
-The 8 tag bits serve several crucial functions:
+The NockPU's tag bit architecture serves several critical functions essential for hardware-based functional computation. The stackless tree traversal mechanism requires embedding traversal state within memory cells themselves, using dedicated bits to track which branches have been visited during tree navigation. The cell-addressed memory model demands type information to distinguish between atoms and cells at the hardware level. Additionally, execution control bits mark cells requiring evaluation, while reserved bits provide extensibility for future architectural enhancements.
 
-\begin{itemize}
-  \item \textbf{Execute bit} (bit 63): Marks a cell as requiring execution
-  \item \textbf{Stack bit} (bit 62): Identifies cells containing an operation code and its operand
-  \item \textbf{Reserved bit} (bit 61): Reserved for future architectural extensions
-  \item \textbf{Large atom bit} (bit 60): Indicates an atom larger than 28 bits
-  \item \textbf{Head traversal bit} (bit 59): Tracks traversal state for the head
-  \item \textbf{Tail traversal bit} (bit 58): Tracks traversal state for the tail
-  \item \textbf{Head tag bit} (bit 57): Distinguishes whether the head is an atom or cell
-  \item \textbf{Tail tag bit} (bit 56): Distinguishes whether the tail is an atom or cell
-\end{itemize}
+Table~\ref{tab:tag-bits} provides a complete specification of the 8-bit tag field structure used in the NockPU's 64-bit memory words. Each tag bit serves a specific architectural purpose, from execution control to traversal state management, enabling the processor to maintain the semantic clarity of Nock computation while achieving practical hardware implementation.
+
+\begin{table}[h]
+\centering
+\caption{NockPU Tag Bits Layout (Bits 63-56)}
+\label{tab:tag-bits}
+\begin{tabular}{|c|l|p{6cm}|}
+\hline
+\textbf{Bit} & \textbf{Name} & \textbf{Explanation} \\
+\hline
+63 & Execute & Marks cell as requiring execution \\
+62 & Stack & Contains operation code and operand \\
+61 & Reserved & Reserved for future extensions \\
+60 & Large Atom & Atom larger than 28 bits \\
+59 & Head Traversal & Tracks head traversal state \\
+58 & Tail Traversal & Tracks tail traversal state \\
+57 & Head Tag & Head is atom (0) or cell (1) \\
+56 & Tail Tag & Tail is atom (0) or cell (1) \\
+\hline
+\end{tabular}
+\end{table}
 
 \noindent
-These tag bits allow the processor to efficiently determine the nature of each memory cell and maintain traversal state without requiring an external stack.
+\textbf{Example:} The Nock cell \texttt{[42 43]} is represented as a 64-bit word:
 
-For example, a simple Nock cell \texttt{[42 43]} would be represented as:
-\begin{itemize}
-  \item Tag bits: \texttt{00000011} (indicating both head and tail are atoms)
-  \item Head: \texttt{0x000001A} (28-bit representation of 42)
-  \item Tail: \texttt{0x000002B} (28-bit representation of 43)
-\end{itemize}
+\begin{align}
+\text{Tag bits (63-56):} &\quad \texttt{00000011}_2 \quad \text{(both head and tail are atoms)} \nonumber \\
+\text{Head (55-28):} &\quad \texttt{0x000002A} \quad \text{(28-bit representation of 42)} \nonumber \\
+\text{Tail (27-0):} &\quad   \texttt{0x000002B} \quad \text{(28-bit representation of 43)} \nonumber \\
+\text{Complete word:} &\quad \texttt{0x03000002A000002B} \nonumber
+\end{align}
 
 \subsubsection{Atom and Cell Representation}
 
 In the NockPU memory model, atoms (natural numbers) are represented directly within the 28-bit fields when possible. For atoms that exceed this limit, the system can use multiple memory cells linked together.
 
-Cells are represented as pointers to other memory locations. When both the head and tail of a cell are atoms, they can be stored directly within a single memory word. When either is a cell, the corresponding field contains a pointer to another memory location.
+Cells are represented as pointers to other memory locations. When both the head and tail of a cell are direct atoms, they can be stored directly within a single memory word. When either is a cell, the corresponding field contains a pointer to another memory location.
 
 \subsection{Stackless Tree Traversal Mechanism}
 
