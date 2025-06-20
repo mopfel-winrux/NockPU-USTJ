@@ -433,56 +433,51 @@ Each Nock operation was verified through specific test cases designed to exercis
 
 \subsection{Performance Metrics}
 
-\subsubsection{Execution Time Analysis}
+Performance benchmarking of the NockPU was conducted using representative Nock operations that exercise different aspects of the hardware architecture. The test configuration utilized a total memory allocation of 2048 words, split equally between active and garbage collection spaces (1024 words each), running at a 50MHz clock frequency. This memory constraint significantly impacts performance characteristics due to the frequency of garbage collection cycles required during computation.
 
-Performance analysis was conducted using a variety of benchmark programs, including:
+The benchmark suite encompasses operations ranging from simple arithmetic to complex recursive functions, providing insight into the computational complexity of hardware-based combinator reduction. Table~\ref{tab:performance-metrics} presents comprehensive performance data for these representative operations, demonstrating the relationship between computational complexity and execution time in the NockPU architecture.
 
-\begin{enumerate}
-  \item \textbf{Decrement Operation}: A classic test case that requires recursive application of Nock operators to perform what would be a single instruction on a traditional CPU.
-  \item \textbf{Ackermann Function}: Tests recursive function evaluation performance with nested recursion patterns.
-  \item \textbf{Equality Testing}: Evaluates the performance of tree comparison operations.
-\end{enumerate}
-
-% TODO: Add performance metrics table
-% \begin{table}[h]
-% \centering
-% \caption{NockPU Performance Metrics for Representative Operations}
-% \label{tab:performance-metrics}
-% \begin{tabular}{|l|l|r|r|r|}
-% \hline
-% \textbf{Operation} & \textbf{Input/Parameters} & \textbf{Clock Cycles} & \textbf{Memory Words} & \textbf{Execution Time} \\
-% \hline
-% Decrement & n=3 & [FILL] & [FILL] & [FILL] μs \\
-% \hline
-% Decrement & n=10 & [FILL] & [FILL] & [FILL] ms \\
-% \hline
-% Ackermann & A(2,2) & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Ackermann & A(3,2) & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Equality Test & Simple atoms & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Equality Test & Complex trees & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Slot Operation & Depth 3 tree & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Slot Operation & Depth 5 tree & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Conditional & Simple branch & [FILL] & [FILL] & [FILL] \\
-% \hline
-% Conditional & Complex branch & [FILL] & [FILL] & [FILL] \\
-% \hline
-% \end{tabular}
-% \end{table}
+\begin{table}[h]
+\centering
+\caption{NockPU Performance Metrics: clock of 50MHz and 16,384 bytes of memory}
+\label{tab:performance-metrics}
+\resizebox{9cm}{!}{%
+\begin{tabular}{|l|l|r|r|}
+\hline
+\textbf{Operation} & \textbf{Input} & \textbf{Cycles} & \textbf{Time} \\
+\hline
+Decrement & n=3 & 32,640 & 652.8 μs \\
+\hline
+Decrement & n=10 & 110,137 & 2.20 ms \\
+\hline
+Ackermann & A(1,2) & 1,214,348 & 24.29 ms \\
+\hline
+Ackermann & A(1,3) & 1,782,038 & 35.64 ms \\
+\hline
+Ackermann & A(2,1) & 3,266,189 & 65.32 ms \\
+\hline
+Ackermann & A(2,2) & 6,533,725 & 130.67 ms \\
+\hline
+Equality & \texttt{=[50 51]} & 490 & 9.14 μs \\
+\hline
+Equality & \texttt{=[[99 99] [99 99]]} & 496 & 9.92 μs \\
+\hline
+Addition & (add 2 2) & 116,310 & 2.33 ms \\
+\hline
+Addition & (add 4 4) & 253,917 & 5.08 ms \\
+\hline
+Slot & Depth 3 & 164 & 3.27 μs \\
+\hline
+Slot & Depth 7 & 156 & 3.12 μs \\
+\hline
+\end{tabular}
+}
+\end{table}
 
 \noindent
-Results show that simple operations complete in hundreds of cycles, while more complex operations requiring extensive tree manipulation can take thousands to millions of cycles. All performance measurements were conducted at a 50MHz clock frequency. Direct performance comparisons with software Nock interpreters are not meaningful due to the significant clock frequency differences (50MHz vs typical 3GHz+ processors), making architectural and implementation approach analysis more relevant than raw performance metrics.
+The benchmark results reveal several key performance characteristics of the NockPU architecture. Simple operations such as equality testing complete in hundreds of cycles, while complex recursive operations like the Ackermann function require millions of cycles due to extensive intermediate structure creation. The 1024-word memory constraint creates a distinctive "step function" behavior in the computational complexity analysis: when operations exceed available memory, garbage collection cycles introduce significant overhead, causing performance to degrade in discrete steps rather than smooth progression.
 
-\subsubsection{Memory Usage Patterns}
-
-Memory usage analysis reveals a clear pattern: Nock programs quickly consume memory due to the graph reduction approach. Even simple operations like decrement create multiple intermediate structures.
-
-For example, decrementing the number 3 required 32,100 clock cycles (642 microseconds at 50MHz), while decrementing the number 10 required 700,000 clock cycles (14 milliseconds at 50MHz) and consumed more than 800 memory words, demonstrating the memory-intensive nature of combinator reduction and its exponential growth characteristics.
+This memory-bounded performance profile is particularly evident in recursive operations, where the combination of exponential intermediate structure growth and periodic garbage collection creates compound performance effects. The deterministic nature of the architecture ensures consistent timing for identical operations, but the interplay between memory consumption and collection cycles makes performance prediction dependent on both algorithmic complexity and memory utilization patterns. These characteristics distinguish the NockPU's performance profile from traditional architectures, where performance typically scales more predictably with computational complexity.
 
 \subsection{Limitations and Challenges}
 
