@@ -5,6 +5,9 @@
 \usepackage{graphicx}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{pdflscape}
 
 \addbibresource{mss.bib}
 
@@ -41,7 +44,7 @@
 \thispagestyle{firststyle}
 
 \begin{abstract}
-This paper presents the design, implementation, and evaluation of NockPU, a hardware processor that directly executes Nock, a minimalist combinator calculus serving as the foundation for the Urbit computing platform. The research demonstrates the feasibility of implementing all twelve Nock operations in hardware using FPGA-based graph reduction techniques. Key architectural decisions include a cell-based memory representation optimized for 64-bit words, stackless tree traversal using breadcrumb techniques, and integrated Cheney-style copying garbage collection. Performance analysis identifies two primary challenges: excessive memory consumption due to intermediate structure creation during reduction, and computational complexity arising from the graph transformation approach required by combinator reduction. The implemented garbage collector successfully addresses memory consumption issues, preventing system crashes during complex computations. While computational efficiency remains challenging compared to traditional architectures, the NockPU establishes that hardware Nock implementation is viable and provides a foundation for specialized functional computation with advantages in determinism and semantic clarity.
+This paper presents the design, implementation, and evaluation of NockPU, a hardware processor that directly executes Nock 4k, a minimalist combinator calculus serving as the foundation for the Urbit computing platform. The research demonstrates the feasibility of implementing all twelve Nock operations in hardware using FPGA-based graph reduction techniques. Key architectural decisions include a cell-based memory representation optimized for 64-bit words, stackless tree traversal using breadcrumb techniques, and integrated Cheney-style copying garbage collection. Performance analysis identifies two primary challenges: excessive memory consumption due to intermediate structure creation during reduction, and computational complexity arising from the graph transformation approach required by combinator reduction. The implemented garbage collector successfully addresses memory consumption issues, preventing system crashes during complex computations. While computational efficiency remains challenging compared to traditional architectures, the NockPU establishes that hardware Nock 4k implementation is viable and provides a foundation for specialized functional computation with advantages in determinism and semantic clarity.
 \end{abstract}
 
 % We will adjust page numbering in final editing.
@@ -138,12 +141,7 @@ The NockPU is designed as a specialized processor that directly executes Nock op
 \end{enumerate}
 
 \noindent
-% TODO: Add Figure - NockPU System Architecture Overview
-% Block diagram showing:
-% - Memory Traversal Unit (MTU) as central controller
-% - Execute Module and specialized operation blocks
-% - Memory Unit with multiplexer
-% - Data flow arrows between components
+\input{figures/nockpu_architecture}
 
 At a high level, the NockPU consists of a memory traversal unit (MTU) that controls the overall execution flow, specialized modules for executing different Nock operators, and memory management components including a memory unit (MU) and garbage collector.
 
@@ -224,12 +222,7 @@ Together, these pointers allow the system to navigate the tree structure without
 
 \subsubsection{Breadcrumb Trail Implementation}
 
-% TODO: Add Figure - Tree Traversal Sequence
-% Multi-panel figure showing:
-% A) Initial tree state
-% B) Traversal down with pointer modifications
-% C) Return traversal using breadcrumbs
-% Similar to Burrows 2009 traversal diagrams
+\input{figures/tree_traversal}
 
 As the processor traverses the tree, it modifies the memory cells it visits, effectively leaving a trail that can be followed back up. When descending into a subtree, the processor redirects the pointer in the left part of the cell to point to the parent node, from which execution flow just came. This creates a pathway back up the tree.
 
