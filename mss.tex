@@ -11,9 +11,8 @@
 
 \addbibresource{mss.bib}
 
-% \newcommand{\authorname}{John Smith}
 \newcommand{\authorpatp}{\patp{~mopfel-winrux}}
-\newcommand{\affiliation}{Native Planet, SWPS}
+\newcommand{\affiliation}{Native Planet, Southwestern Pool Supply Co.}
 
 %  Make first page footer:
 \fancypagestyle{firststyle}{%
@@ -141,9 +140,11 @@ The NockPU is designed as a specialized processor that directly executes Nock op
 \end{enumerate}
 
 \noindent
+Figure~\ref{fig:nockpu-architecture} illustrates the overall system architecture of the NockPU, showing the interconnections between its major components. The Memory Traversal Unit serves as the central coordinator, managing communication between the execution subsystems and memory hierarchy. The architecture demonstrates a clear separation between control logic, execution units, and memory management, enabling modular design and efficient resource utilization.
+
 \input{figures/nockpu_architecture}
 
-At a high level, the NockPU consists of a memory traversal unit (MTU) that controls the overall execution flow, specialized modules for executing different Nock operators, and memory management components including a memory unit (MU) and garbage collector.
+The execution pipeline flows from the Memory Traversal Unit to specialized operation blocks through the Execute Module, which acts as a dispatcher for different Nock opcodes. This design allows each operation type to be optimized independently while maintaining consistent control interfaces. The memory subsystem integrates traditional storage with garbage collection, providing the specialized memory management required for combinator reduction.
 
 The architecture implements explicitly single-threaded execution, consistent with Nock's deterministic semantics. This design choice ensures that all computations proceed in a predictable, sequential manner, eliminating race conditions and maintaining the mathematical purity that characterizes Nock evaluation.
 
@@ -222,7 +223,11 @@ Together, these pointers allow the system to navigate the tree structure without
 
 \subsubsection{Breadcrumb Trail Implementation}
 
+The stackless traversal mechanism operates by temporarily modifying tree pointers to create navigational breadcrumbs, as demonstrated in Figure~\ref{fig:tree-traversal}. This approach eliminates the need for external stack memory while maintaining the ability to navigate complex tree structures during Nock evaluation.
+
 \input{figures/tree_traversal}
+
+The traversal sequence shown in the figure illustrates the three-phase operation: initialization, descent with breadcrumb creation, and return via breadcrumb following. In panel A, the tree exists in its canonical form with normal pointer relationships. Panel B shows the critical breadcrumb creation phase, where the processor modifies the root cell's head pointer to store a return path before descending into the left subtree. Panel C demonstrates the return mechanism, where the breadcrumb is followed back to the root, restoring the original pointer structure while marking the left subtree as visited.
 
 As the processor traverses the tree, it modifies the memory cells it visits, effectively leaving a trail that can be followed back up. When descending into a subtree, the processor redirects the pointer in the left part of the cell to point to the parent node, from which execution flow just came. This creates a pathway back up the tree.
 
@@ -342,9 +347,13 @@ The simplest Nock operations are implemented directly within the memory traversa
 
 Operations that transform the tree structure are implemented through carefully orchestrated memory manipulations:
 
-\textbf{Evaluation} (\texttt{*[a 2 b c]}): Constructs a new tree representing \texttt{*[*[a b] *[a c]]}, marking the appropriate cells for execution.
+\textbf{Evaluation} (\texttt{*[a 2 b c]}): Constructs a new tree representing \texttt{*[*[a b] *[a c]]}, marking the appropriate cells for execution. This operation demonstrates the NockPU's approach to graph transformation, where complex Nock operations are implemented by restructuring memory to reflect the semantically equivalent expanded form.
+
+Figure~\ref{fig:memory-transformation} illustrates the memory transformation process for Nock opcode 2, showing how the original nested structure is converted into separate evaluation branches. The transformation allocates new memory cells (addresses 0x09 and 0x0A) to represent the two evaluation paths \texttt{*[a b]} and \texttt{*[a c]}, while preserving the original subject data at address 0x02. The execute bits (0x80 in the tag field) mark the newly created cells for evaluation, allowing the processor to continue the reduction process on the transformed structure.
 
 \input{figures/memory_transformation}
+
+This approach exemplifies the NockPU's philosophy of implementing complex operations through memory restructuring rather than traditional control flow. The deterministic nature of memory allocation ensures consistent behavior, while the tagging system provides the execution control necessary for proper evaluation sequencing.
 
 \textbf{Cell Testing} (\texttt{*[a 3 b]}): Examines whether the result of \texttt{*[a b]} is a cell, returning the appropriate truth value.
 
