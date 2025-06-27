@@ -344,9 +344,7 @@ Operations that transform the tree structure are implemented through carefully o
 
 \textbf{Evaluation} (\texttt{*[a 2 b c]}): Constructs a new tree representing \texttt{*[*[a b] *[a c]]}, marking the appropriate cells for execution.
 
-% TODO: Add Figure - Memory Transformation for Opcode 2 (Evaluation)
-% Before/after memory diagram showing how *[a 2 b c] constructs *[*[a b] *[a c]]
-% Should illustrate the graph reduction and execution marking process
+\input{figures/memory_transformation}
 
 \textbf{Cell Testing} (\texttt{*[a 3 b]}): Examines whether the result of \texttt{*[a b]} is a cell, returning the appropriate truth value.
 

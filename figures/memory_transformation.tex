@@ -1,0 +1,67 @@
+\begin{figure}[htbp]
+\centering
+
+% Before state
+\textbf{Before: Memory State for \\ *[[50 51] [2 [0 3] [1 [4 0 1]]]]}
+
+\vspace{0.3cm}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Address} & \textbf{Tag Bits} & \textbf{Head} & \textbf{Tail} \\
+\hline\hline
+0x00 & 0x00 & 0x0000000 & 0x0000009 \\
+0x01 & 0x80 & 0x0000002 & 0x0000003 \\
+0x02 & 0x03 & \textbf{0x0000032} & \textbf{0x0000033} \\
+0x03 & 0x02 & \underline{0x0000002} & 0x0000004 \\
+0x04 & 0x00 & 0x0000005 & 0x0000006 \\
+0x05 & 0x03 & \underline{0x0000000} & \textbf{0x0000003} \\
+0x06 & 0x02 & \underline{0x0000001} & 0x0000007 \\
+0x07 & 0x02 & \underline{0x0000004} & 0x0000008 \\
+0x08 & 0x02 & \underline{0x0000000} & \textbf{0x0000001} \\
+\hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% After state
+\textbf{After: Memory State for \\ *[*[[50 51] [0 3]] *[[50 51] [1 [4 0 1]]]]}
+
+\vspace{0.3cm}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Address} & \textbf{Tag Bits} & \textbf{Head} & \textbf{Tail} \\
+\hline\hline
+0x00 & 0x00 & 0x0000000 & 0x0000009 \\
+\rowcolor{Gainsboro!60}
+0x01 & 0x80 & 0x0000009 & 0x000000A \\
+0x02 & 0x03 & \textbf{0x0000032} & \textbf{0x0000033} \\
+0x03 & 0x02 & \underline{0x0000002} & 0x0000004 \\
+0x04 & 0x00 & 0x0000005 & 0x0000006 \\
+0x05 & 0x03 & \underline{0x0000000} & \textbf{0x0000003} \\
+0x06 & 0x02 & \underline{0x0000001} & 0x0000007 \\
+0x07 & 0x02 & \underline{0x0000004} & 0x0000008 \\
+0x08 & 0x02 & \underline{0x0000000} & \textbf{0x0000001} \\
+\rowcolor{Gainsboro!60}
+0x09 & 0x80 & 0x0000002 & 0x0000005 \\
+\rowcolor{Gainsboro!60}
+0x0A & 0x80 & 0x0000002 & 0x0000006 \\
+\hline
+\end{tabular}
+
+\vspace{0.3cm}
+
+\begin{minipage}{\textwidth}
+\small
+\textbf{Key:}
+\begin{itemize}
+\item \textbf{Bold values}: Data atoms (direct values like 50, 51, 3, 1)
+\item \underline{Underlined values}: Opcodes (Nock operation codes like 2, 0, 4)
+\item Normal values: Pointers to other memory locations
+\end{itemize}
+\end{minipage}
+
+\caption{Memory transformation for Nock Opcode 2 (Evaluation) demonstrating the conversion from opcode structure to evaluation branches, showing how \texttt{*[a 2 b c]} becomes \texttt{*[*[a b] *[a c]]} through memory graph restructuring.}
+\label{fig:memory-transformation}
+\end{figure}
