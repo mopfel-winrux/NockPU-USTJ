@@ -142,7 +142,7 @@ The NockPU is designed as a specialized processor that directly executes Nock op
 \end{enumerate}
 
 \noindent\sloppy
-Figure~\ref{fig:nockpu-architecture} illustrates the overall system architecture of the NockPU, showing the interconnections between its major components. The Memory Traversal Unit serves as the central coordinator, managing co\textsc{mmu}nication between the execution subsystems and memory hierarchy. The architecture demonstrates a clear separation between control logic, execution units, and memory management, enabling modular design and efficient resource utilization.
+Figure~\ref{fig:nockpu-architecture} illustrates the overall system architecture of the NockPU, showing the interconnections between its major components. The Memory Traversal Unit serves as the central coordinator, managing communication between the execution subsystems and memory hierarchy. The architecture demonstrates a clear separation between control logic, execution units, and memory management, enabling modular design and efficient resource utilization.
 
 \input{figures/nockpu_architecture}
 
@@ -340,31 +340,31 @@ This modular testing approach allows for isolation of functionality and systemat
 
 \subsection{Nock Operation Implementation}
 
-\subsubsection{Basic Operations (Slot, Zero, One)}
+\subsubsection{Basic Operations (Slot, Constant)}
 
 The simplest Nock operations are implemented directly within the memory traversal and execution modules:
 
-\textbf{Slot Operation} (\texttt{*[a 0 b]}): Implemented by traversing the subject tree according to the address pattern specified by \texttt{b}. The implementation uses a bit-wise approach where each bit in the address determines whether to follow the head or tail pointer.
+\paragraph{Slot Operation (\texttt{*[a 0 b]})} Implemented by traversing the subject tree according to the address pattern specified by \texttt{b}. The implementation uses a bit-wise approach where each bit in the address determines whether to follow the head or tail pointer.
 
-\textbf{Constant Operations} (\texttt{*[a 1 b]}): Simply returns the constant \texttt{b} regardless of the subject. This is implemented by writing the value of \texttt{b} directly to the result cell.
+\paragraph{Constant Operation (\texttt{*[a 1 b]})} Simply returns the constant \texttt{b} regardless of the subject. This is implemented by writing the value of \texttt{b} directly to the result cell.
 
 \subsubsection{Tree Manipulation Operations}
 
 Operations that transform the tree structure are implemented through carefully orchestrated memory manipulations:
 
-\textbf{Evaluation} (\texttt{*[a 2 b c]}): Constructs a new tree representing \texttt{*[*[a b] *[a c]]}, marking the appropriate cells for execution. This operation demonstrates the NockPU's approach to graph transformation, where complex Nock operations are implemented by restructuring memory to reflect the semantically equivalent expanded form.
+\paragraph{Evaluation (\texttt{*[a 2 b c]})} Constructs a new tree representing \texttt{*[*[a b] *[a c]]}, marking the appropriate cells for execution. This operation demonstrates the NockPU's approach to graph transformation, where complex Nock operations are implemented by restructuring memory to reflect the semantically equivalent expanded form.
 
-Figure~\ref{fig:memory-transformation} illustrates the memory transformation process for Nock opcode 2, showing how the original nested structure is converted into separate evaluation branches. The transformation allocates new memory cells (addresses 0x09 and 0x0A) to represent the two evaluation paths \texttt{*[a b]} and \texttt{*[a c]}, while preserving the original subject data at address 0x02. The execute bits (0x80 in the tag field) mark the newly created cells for evaluation, allowing the processor to continue the reduction process on the transformed structure.
+Figure~\ref{fig:memory-transformation} illustrates the memory transformation process for Nock opcode 2, showing how the original nested structure is converted into separate evaluation branches. The transformation allocates new memory cells (addresses \texttt{0x09} and \texttt{0x0A}) to represent the two evaluation paths \texttt{*[a b]} and \texttt{*[a c]}, while preserving the original subject data at address \texttt{0x02}. The execute bits (\texttt{0x80} in the tag field) mark the newly created cells for evaluation, allowing the processor to continue the reduction process on the transformed structure.
 
 \input{figures/memory_transformation}
 
 This approach exemplifies the NockPU's philosophy of implementing complex operations through memory restructuring rather than traditional control flow. The deterministic nature of memory allocation ensures consistent behavior, while the tagging system provides the execution control necessary for proper evaluation sequencing.
 
-\textbf{Cell Testing} (\texttt{*[a 3 b]}): Examines whether the result of \texttt{*[a b]} is a cell, returning the appropriate truth value.
+\paragraph{Cell Testing (\texttt{*[a 3 b]})} Examines whether the result of \texttt{*[a b]} is a cell, returning the appropriate truth value.
 
-\textbf{Increment} (\texttt{*[a 4 b]}): Increments the result of \texttt{*[a b]} by one, using specialized logic.
+\paragraph{Increment (\texttt{*[a 4 b]})} Increments the result of \texttt{*[a b]} by one, using specialized logic.
 
-\textbf{Equality} (\texttt{*[a 5 b c]}): Compares the results of \texttt{*[a b]} and \texttt{*[a c]} for equality.
+\paragraph{Equality (\texttt{*[a 5 b c]})} Compares the results of \texttt{*[a b]} and \texttt{*[a c]} for equality.
 
 \subsubsection{Conditional Operation Implementation}
 
@@ -380,11 +380,11 @@ This approach, while computationally expensive, maintains semantic equivalence w
 
 Operations 7, 8, and 9 share a common implementation pattern in the NockPU: they perform graph reduction by writing the equivalent expanded expression directly into memory, then rely on the normal execution order to evaluate the result correctly.
 
-\textbf{Composition} (\texttt{*[a 7 b c]}): The NockPU writes the graph reduction \texttt{*[*[a b] c]} directly into memory. The normal execution order ensures that \texttt{*[a b]} is evaluated first, with its result becoming the subject for the subsequent evaluation of \texttt{c}.
+\paragraph{Composition (\texttt{*[a 7 b c]})} The NockPU writes the graph reduction \texttt{*[*[a b] c]} directly into memory. The normal execution order ensures that \texttt{*[a b]} is evaluated first, with its result becoming the subject for the subsequent evaluation of \texttt{c}.
 
-\textbf{Push} (\texttt{*[a 8 b c]}): Implemented by writing the expansion \texttt{*[[*[a b] a] c]} into memory. The execution system constructs a cell containing both the result of \texttt{*[a b]} and the original subject \texttt{a}, creating the augmented context needed for evaluating \texttt{c}.
+\paragraph{Push (\texttt{*[a 8 b c]})} Implemented by writing the expansion \texttt{*[[*[a b] a] c]} into memory. The execution system constructs a cell containing both the result of \texttt{*[a b]} and the original subject \texttt{a}, creating the augmented context needed for evaluating \texttt{c}.
 
-\textbf{Call} (\texttt{*[a 9 b c]}): Constructs the graph reduction \texttt{*[*[a c] 2 [0 1] 0 b]} in memory. This creates the function call frame structure, with normal execution order ensuring proper evaluation sequence: first \texttt{*[a c]} to obtain the function, then the constructed evaluation context.
+\paragraph{Call (\texttt{*[a 9 b c]})} Constructs the graph reduction \texttt{*[*[a c] 2 [0 1] 0 b]} in memory. This creates the function call frame structure, with normal execution order ensuring proper evaluation sequence: first \texttt{*[a c]} to obtain the function, then the constructed evaluation context.
 
 This unified approach eliminates the need for specialized control flow logic in hardware. Instead, the NockPU leverages its graph reduction capabilities and the inherent ordering properties of the traversal mechanism to achieve correct execution semantics for all three operations.
 
@@ -448,7 +448,7 @@ The benchmark suite encompasses operations ranging from simple arithmetic to com
 
 \begin{table}[h]
 \centering
-\caption{NockPU Performance Metrics: clock of 50MHz and 16,384 bytes of memory}
+\caption{NockPU performance metrics for 50MHz clock and 16KB memory}
 \label{tab:performance-metrics}
 \resizebox{9cm}{!}{%
 \begin{tabular}{|l|l|r|r|}
@@ -471,9 +471,9 @@ Equality & \texttt{*[50 5 [0 1] 0 1]} & 406 & 8.12 μs \\
 \hline
  Equality & \texttt{*[[99 99] 5 [0 1] 0 1]} & 479 & 9.58 μs \\
 \hline
-Addition & (add 2 2) & 116,310 & 2.33 ms \\
+Addition & \texttt{(add 2 2)} & 116,310 & 2.33 ms \\
 \hline
-Addition & (add 4 4) & 253,917 & 5.08 ms \\
+Addition & \texttt{(add 4 4)} & 253,917 & 5.08 ms \\
 \hline
 Slot & Depth 3 & 164 & 3.27 μs \\
 \hline
@@ -508,7 +508,7 @@ Several performance bottlenecks were identified:
 
 \subsubsection{Conditional Operation Overhead}
 
-The implementation of the conditional operation (\texttt{*[a 6 b c d]}) proved particularly inefficient due to its expression as a complex tree transformation rather than a simple branch. This approach, while semantically pure, introduces significant overhead compared to traditional conditional execution.
+The implementation of the conditional operation \texttt{*[a 6 b c d]} proved particularly inefficient due to its expression as a complex tree transformation rather than a simple branch. This approach, while semantically pure, introduces significant overhead compared to traditional conditional execution.
 
 \section{Future Work}
 
@@ -517,12 +517,12 @@ The implementation of the conditional operation (\texttt{*[a 6 b c d]}) proved p
 While the current implementation supports 28-bit atoms, supporting arbitrarily large atoms is necessary for full Nock compatibility. The proposed implementation uses a structured approach where large atoms are represented as follows:
 
 \begin{itemize}
-  \item \textbf{Header Cell}: The head contains the length of the large atom, while the tail serves as workspace for the interpreter
-  \item \textbf{Data Storage}: The address immediately following the header contains the first 64 bits of the large atom in little-endian format, with subsequent addresses containing additional 64-bit segments as needed
+  \item \textbf{Header Cell}: The head contains the length of the large atom, while the tail serves as workspace for the interpreter.
+  \item \textbf{Data Storage}: The address immediately following the header contains the first 64 bits of the large atom in little-endian format, with subsequent addresses containing additional 64-bit segments as needed.
 \end{itemize}
 
 \noindent
-This design requires specific modifications to atom-manipulating operations:
+This design requires specific modifications to atom-manipu\-lating operations:
 
 \begin{enumerate}
   \item \textbf{Increment Operation}: Must reallocate the entire large atom and perform increment with carry propagation across all 64-bit segments, ensuring proper handling of size changes when carries extend the atom length.
@@ -535,7 +535,7 @@ The memory allocation system remains unchanged, as large atoms are allocated as 
 
 \subsection{Hardware Jetting Strategy}
 
-"Jetting" refers to the replacement of inefficient Nock code patterns with optimized implementations. A promising approach for hardware jetting involves using a secondary processor that:
+``Jetting" refers to the replacement of inefficient Nock code patterns with optimized implementations. A promising approach for hardware jetting involves using a secondary processor that:
 
 \begin{enumerate}
   \item Detects specific patterns in the Nock code
