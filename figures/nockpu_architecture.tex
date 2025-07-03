@@ -5,38 +5,44 @@
 \begin{tikzpicture}[
     scale=1.0,
     transform shape,
-    block/.style={rectangle, draw=black, thick, fill=blue!20, text width=2.8cm, 
-                  text centered, minimum height=1.4cm, font=\scriptsize, inner sep=4pt},
-    smallblock/.style={rectangle, draw=black, thick, fill=green!20, text width=2.4cm, 
-                       text centered, minimum height=1.2cm, font=\scriptsize, inner sep=4pt},
-    memory/.style={rectangle, draw=black, thick, fill=orange!20, text width=2.4cm, 
-                   text centered, minimum height=1.2cm, font=\scriptsize, inner sep=4pt},
-    arrow/.style={->, thick, blue!70!black},
-    bidiarrow/.style={<->, thick, red!70!black}
+    block/.style={rectangle, draw=black, thick, fill=white, pattern=crosshatch, pattern color=black, text width=2.8cm, 
+                  text centered, minimum height=1.4cm, font=\scriptsize, inner sep=4pt,
+                          label={[rectangle, fill=white, text depth=0.2ex, inner sep=2pt, font=\scriptsize, align=center]center:#1}
+    },
+    smallblock/.style={rectangle, draw=black, thick, fill=white, pattern=north west lines, pattern color=black, text width=2.4cm, 
+                       text centered, minimum height=1.2cm, font=\scriptsize, inner sep=4pt,
+                        label={[rectangle, fill=white, text depth=0.2ex, inner sep=2pt, font=\scriptsize, align=center]center:#1}
+    },
+    memory/.style={rectangle, draw=black, thick, fill=white, text width=2.4cm, 
+                   text centered, minimum height=1.2cm, font=\scriptsize, inner sep=4pt,
+                          label={[rectangle, fill=white, text depth=0.2ex, inner sep=2pt, font=\scriptsize, align=center]center:#1}
+    },
+    arrow/.style={->, thick, dashed},
+    bidiarrow/.style={<->, thick}
 ]
 
 % Central Memory Traversal Unit - center of diagram
-\node[block] (mtu) at (0,0) {Memory\\Traversal\\Unit (MTU)};
+\node[block={Memory\\Traversal\\Unit (\textsc{mtu})}] (mtu) at (0,0) {};
 
 % Execute Module - to the right with moderate spacing
-\node[block] (execute) at (4.0,0) {Execute\\Module};
+\node[block={Execute\\Module}] (execute) at (4.0,0) {};
 
 % Specialized Operation Blocks - stacked vertically on far right with more spacing
-\node[smallblock] (cell) at (8.5,1.8) {Cell Block\\(Op 3)};
-\node[smallblock] (inc) at (8.5,0.6) {Increment\\(Op 4)};
-\node[smallblock] (equal) at (8.5,-0.6) {Equal\\(Op 5)};
-\node[smallblock] (edit) at (8.5,-1.8) {Edit\\(Op 10)};
+\node[smallblock={Cell Block\\(Op 3)}] (cell) at (8.5,1.8) {};
+\node[smallblock={Increment\\(Op 4)}] (inc) at (8.5,0.6) {};
+\node[smallblock={Equal\\(Op 5)}] (equal) at (8.5,-0.6) {};
+\node[smallblock={Edit\\(Op 10)}] (edit) at (8.5,-1.8) {};
 
 % Memory Components - stacked vertically on left with much more spacing
-\node[memory] (memunit) at (-5,1.8) {Memory\\Unit (MU)};
-\node[memory] (memmux) at (-5,0) {Memory\\Multiplexer};
-\node[memory] (gc) at (-5,-1.8) {Garbage\\Collector};
+\node[memory={Memory\\Unit (\textsc{mu})}] (memunit) at (-5,1.8) {};
+\node[memory={Memory\\Multiplexer}] (memmux) at (-5,0) {};
+\node[memory={Garbage\\Collector}] (gc) at (-5,-1.8) {};
 
 % Control Components - below center with more space
-\node[smallblock] (ctrlmux) at (2,-3) {Control\\Multiplexer};
+\node[smallblock={Control\\Multiplexer}] (ctrlmux) at (2,-3) {};
 
 % Program and Back Pointers - bottom left with more space
-\node[smallblock] (pointers) at (-1,-3) {P \& B\\Pointers};
+\node[smallblock={P \& B\\Pointers}] (pointers) at (-1,-3) {};
 
 % Data flow arrows - bidirectional with better routing
 \draw[bidiarrow] (mtu) -- (execute) node[midway, above, sloped] {\scriptsize control};

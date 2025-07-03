@@ -7,12 +7,13 @@
 \usepackage{algorithmic}
 \usepackage{tikz}
 \usetikzlibrary{positioning}
+\usetikzlibrary{patterns}
 \usepackage{pdflscape}
 
 \addbibresource{mss.bib}
 
-\newcommand{\authorpatp}{\patp{~mopfel-winrux}}
-\newcommand{\affiliation}{Native Planet, Southwestern Pool Supply Co.}
+\newcommand{\authorpatp}{\patp{mopfel-winrux}}
+\newcommand{\affiliation}{Native Planet ∙ Southwestern Pool Supply Co.}
 
 %  Make first page footer:
 \fancypagestyle{firststyle}{%
@@ -43,7 +44,8 @@
 \thispagestyle{firststyle}
 
 \begin{abstract}
-This paper presents the design, implementation, and evaluation of NockPU, a hardware processor that directly executes Nock 4k, a minimalist combinator calculus serving as the foundation for the Urbit computing platform. The research demonstrates the feasibility of implementing all twelve Nock operations in hardware using FPGA-based graph reduction techniques. Key architectural decisions include a cell-based memory representation optimized for 64-bit words, stackless tree traversal using breadcrumb techniques, and integrated Cheney-style copying garbage collection. Performance analysis identifies two primary challenges: excessive memory consumption due to intermediate structure creation during reduction, and computational complexity arising from the graph transformation approach required by combinator reduction. The implemented garbage collector successfully addresses memory consumption issues, preventing system crashes during complex computations. While computational efficiency remains challenging compared to traditional architectures, the NockPU establishes that hardware Nock 4k implementation is viable and provides a foundation for specialized functional computation with advantages in determinism and semantic clarity.
+\sloppy
+This paper presents the design, implementation, and evaluation of NockPU, a hardware processor that directly executes Nock 4k, a minimalist combinator calculus serving as the foundation for the Urbit computing platform. The research demonstrates the feasibility of implementing all twelve Nock operations in hardware using \textsc{fpga}-based graph reduction techniques. Key architectural decisions include a cell-based memory representation optimized for 64-bit words, stackless tree traversal using breadcrumb techniques, and integrated Cheney-style copying garbage collection. Performance analysis identifies two primary challenges: excessive memory consumption due to intermediate structure creation during reduction, and computational complexity arising from the graph transformation approach required by combinator reduction. The implemented garbage collector successfully addresses memory consumption issues, preventing system crashes during complex computations. While computational efficiency remains challenging compared to traditional architectures, the NockPU establishes that hardware Nock 4k implementation is viable and provides a foundation for specialized functional computation with advantages in determinism and semantic clarity.
 \end{abstract}
 
 % We will adjust page numbering in final editing.
@@ -54,15 +56,15 @@ This paper presents the design, implementation, and evaluation of NockPU, a hard
 
 \section{Introduction}
 
-Combinator calculi represent a fundamental approach to computation based on the application and reduction of combinators - operators that compose and transform data without requiring named variables. Nock is a specific combinator calculus developed as the foundation of Urbit, a clean-slate computing platform. It provides a deterministic, stateless computing environment that trades performance for perfect semantic clarity. While Nock interpreters typically run in software environments (e.g., the C-based Vere interpreter and Rust-based NockVM interpreter for Urbit), little exploration has been done regarding the direct implementation of Nock in hardware.
+Combinator calculi represent a fundamental approach to computation based on the application and reduction of combinators -- operators that compose and transform data without requiring named variables. Nock is a specific combinator calculus developed as the foundation of Urbit, a clean-slate computing platform. It provides a deterministic, stateless computing environment that trades performance for perfect semantic clarity. While Nock interpreters typically run in software environments (e.g., the C-based Vere interpreter and Rust-based NockVM interpreter for Urbit), little exploration has been done regarding the direct implementation of Nock in hardware.
 
-Implementing Nock in hardware presents unique challenges fundamentally different from traditional assembly languages. While conventional processors operate on byte buffers stored in linear memory arrays, Nock computation operates on \textit{nouns} - recursive tree structures that exist as linked data rather than contiguous memory blocks. This fundamental difference means that traditional hardware architectures, optimized for sequential memory access patterns and fixed-width data types, are poorly suited for the tree traversal and dynamic memory allocation patterns inherent to Nock execution. The challenge lies not merely in implementing the Nock operations themselves, but in developing memory representations and traversal mechanisms that can efficiently handle the recursive, pointer-based data structures that define Nock's computational model.
+Implementing Nock in hardware presents unique challenges fundamentally different from traditional assembly languages. While conventional processors operate on byte buffers stored in linear memory arrays, Nock computation operates on \textit{nouns} -- recursive tree structures that exist as linked data rather than contiguous memory blocks. This fundamental difference means that traditional hardware architectures, optimized for sequential memory access patterns and fixed-width data types, are poorly suited for the tree traversal and dynamic memory allocation patterns inherent to Nock execution. The challenge lies not merely in implementing the Nock operations themselves, but in developing memory representations and traversal mechanisms that can efficiently handle the recursive, pointer-based data structures that define Nock's computational model.
 
 The motivation behind this research was initially quite straightforward: to address skepticism about whether Nock could be effectively implemented in hardware.
 
 \subsection{Related Work and Motivation}
 
-Hardware implementation of functional languages has historical precedent, with notable examples including the SKIM (S, K, I reduction machine) developed at Cambridge in the 1970s and more recent work on The Reduceron at the University of York. However, these projects have typically focused on more traditional functional programming languages rather than the minimal, axiomatic approach of Nock. Additionally, most prior research has not sufficiently addressed the challenges of scaling such systems to utilize both on-chip and off-chip memory effectively.
+Hardware implementation of functional languages has historical precedent, with notable examples including the \textsc{skim} (S, K, I reduction machine) developed at Cambridge in the 1970s and more recent work on The Reduceron at the University of York. However, these projects have typically focused on more traditional functional programming languages rather than the minimal, axiomatic approach of Nock. Additionally, most prior research has not sufficiently addressed the challenges of scaling such systems to utilize both on-chip and off-chip memory effectively.
 
 \subsection{Project Goals and Approach}
 
@@ -82,20 +84,20 @@ The primary objective was to build a Verilog-based NockPU that could perform all
 
 \subsection{Nock Specification and Semantics}
 
-Nock is a minimalist combinator calculus defined by a small set of axiomatic rules \citep{Nock4K}. Its specification begins with: "A noun is an atom or a cell. An atom is a natural number. A cell is an ordered pair of nouns." The computational core of Nock is expressed through reduction rules that transform nouns based on operator codes. For example, the reduction rule \texttt{*[a 0 b]} performs a slot operation (tree addressing), while \texttt{*[a 2 b c]} evaluates \texttt{*[*[a b] *[a c]]}, and so forth.
+Nock is a minimalist combinator calculus defined by a small set of axiomatic rules \citep{Nock4K}. Its specification begins with: ``A noun is an atom or a cell. An atom is a natural number. A cell is an ordered pair of nouns." The computational core of Nock is expressed through reduction rules that transform nouns based on operator codes. For example, the reduction rule \texttt{*[a 0 b]} performs a slot operation (tree addressing), while \texttt{*[a 2 b c]} evaluates \texttt{*[*[a b] *[a c]]}, and so forth.
 
 Nock's extreme simplicity makes it an interesting target for hardware implementation. It requires only a handful of operations, has no need for floating-point arithmetic, and functions in a completely deterministic manner \citep{Whitepaper}. Yet, this same simplicity can lead to computational inefficiency when compared to traditional architectures, as Nock requires graph transformations for even basic arithmetic operations.
 
 \subsection{Digital Hardware Design Fundamentals}
 
-Field-Programmable Gate Arrays (FPGAs) allow for reconfigurable digital hardware design, making them ideal for prototyping novel processor architectures. Unlike traditional software that executes sequentially, hardware designs in languages like Verilog describe circuits where operations occur in parallel, governed by clock cycles.
+Field-Programmable Gate Arrays (\textsc{fpga}s) allow for reconfigurable digital hardware design, making them ideal for prototyping novel processor architectures. Unlike traditional software that executes sequentially, hardware designs in languages like Verilog describe circuits where operations occur in parallel, governed by clock cycles.
 
 The design process involves:
 \begin{enumerate}
-  \item Creating a high-level design using Hardware Description Language (HDL)
+  \item Creating a high-level design using Hardware Description Language (\textsc{hdl})
   \item Building test benches to verify functionality
-  \item Synthesis (converting HDL to netlist)
-  \item Place and Route (mapping netlist to FPGA resources)
+  \item Synthesis (converting \textsc{hdl} to netlist)
+  \item Place and Route (mapping netlist to \textsc{fpga} resources)
   \item Timing analysis and program file generation
 \end{enumerate}
 
@@ -103,9 +105,9 @@ The design process involves:
 
 Several significant projects have attempted to implement functional programming languages directly in hardware:
 
-\textbf{SKIM (S, K, I reduction machine)}: Developed by Clarke et al. at Cambridge in the 1970s and 1980s \citep{Clarke1980, Norman1984}, SKIM implemented combinatory logic directly in hardware. It pioneered many of the techniques for graph reduction that influenced later work.
+\textbf{\textsc{skim} (S, K, I reduction machine)}: Developed by Clarke et al. at Cambridge in the 1970s and 1980s \citep{Clarke1980, Norman1984}, \textsc{skim} implemented combinatory logic directly in hardware. It pioneered many of the techniques for graph reduction that influenced later work.
 
-\textbf{The Reduceron}: More recently, work at the University of York by Naylor and Runciman has produced The Reduceron \citep{Naylor2008, Naylor2009}, an FPGA-based graph reduction machine initially designed for executing Haskell programs using basic combinators (S, K, I, B, C). Later versions moved to more complex supercombinator implementations.
+\textbf{The Reduceron}: More recently, work at the University of York by Naylor and Runciman has produced The Reduceron \citep{Naylor2008, Naylor2009}, an \textsc{fpga}-based graph reduction machine initially designed for executing Haskell programs using basic combinators (S, K, I, B, C). Later versions moved to more complex supercombinator implementations.
 
 While these implementations provide valuable precedent, they differ from the NockPU in several important ways:
 \begin{enumerate}
@@ -139,8 +141,8 @@ The NockPU is designed as a specialized processor that directly executes Nock op
   \item \textbf{Scalability across memory boundaries}: The design accommodates both on-chip and off-chip memory, allowing for larger computations than could fit in on-chip memory alone.
 \end{enumerate}
 
-\noindent
-Figure~\ref{fig:nockpu-architecture} illustrates the overall system architecture of the NockPU, showing the interconnections between its major components. The Memory Traversal Unit serves as the central coordinator, managing communication between the execution subsystems and memory hierarchy. The architecture demonstrates a clear separation between control logic, execution units, and memory management, enabling modular design and efficient resource utilization.
+\noindent\sloppy
+Figure~\ref{fig:nockpu-architecture} illustrates the overall system architecture of the NockPU, showing the interconnections between its major components. The Memory Traversal Unit serves as the central coordinator, managing co\textsc{mmu}nication between the execution subsystems and memory hierarchy. The architecture demonstrates a clear separation between control logic, execution units, and memory management, enabling modular design and efficient resource utilization.
 
 \input{figures/nockpu_architecture}
 
@@ -161,7 +163,7 @@ The NockPU represents Nock nouns using a custom memory format. Each memory cell 
 \end{itemize}
 
 \noindent
-This representation allows for efficient storage of Nock's binary tree structure while providing room for necessary metadata. The 28-bit limitation for nouns was chosen based on practical FPGA constraints: most commercially available FPGAs have at most 256MB of directly accessible on-board memory, making 28-bit addressing sufficient while maintaining efficient 64-bit word alignment. This design choice facilitates straightforward scaling across different FPGA platforms, as the architecture can be trivially adjusted for larger memory configurations when available, though the architecture includes provisions for handling arbitrarily large atoms through linked representations.
+This representation allows for efficient storage of Nock's binary tree structure while providing room for necessary metadata. The 28-bit limitation for nouns was chosen based on practical \textsc{fpga} constraints: most commercially available \textsc{fpga}s have at most 256MB of directly accessible on-board memory, making 28-bit addressing sufficient while maintaining efficient 64-bit word alignment. This design choice facilitates straightforward scaling across different \textsc{fpga} platforms, as the architecture can be trivially adjusted for larger memory configurations when available, though the architecture includes provisions for handling arbitrarily large atoms through linked representations.
 
 \subsubsection{Tag Bit Utilization}
 
@@ -192,14 +194,17 @@ Table~\ref{tab:tag-bits} provides a complete specification of the 8-bit tag fiel
 \end{table}
 
 \noindent
-\textbf{Example:} The Nock cell \texttt{[42 43]} is represented as a 64-bit word:
+\textbf{Example:} The Nock cell \texttt{[42 43]} is represented as a 64-bit word with the following bits:
 
-\begin{align}
-\text{Tag bits (63-56):} &\quad \texttt{00000011}_2 \quad \text{(both head and tail are atoms)} \nonumber \\
-\text{Head (55-28):} &\quad \texttt{0x000002A} \quad \text{(28-bit representation of 42)} \nonumber \\
-\text{Tail (27-0):} &\quad   \texttt{0x000002B} \quad \text{(28-bit representation of 43)} \nonumber \\
-\text{Complete word:} &\quad \texttt{0x03000002A000002B} \nonumber
-\end{align}
+\begin{tabular}{ll}
+Tag bits (63--56): & \texttt{00000011}$_2$ \\
+ & \quad \text{(both head and tail are atoms)} \\
+Head (55--28): & \texttt{0x000002A}$_2$ \\
+ & \quad \text{(28-bit representation of 42)} \\
+Tail (27--0): & \texttt{0x000002B}$_2$ \\
+ & \quad \text{(28-bit representation of 43)} \\
+Complete word: & \texttt{0x03000002A000002B}$_2$
+\end{tabular}
 
 \subsubsection{Atom and Cell Representation}
 
@@ -219,7 +224,7 @@ The NockPU implements a stackless approach to tree traversal \citep{Burrows2009}
 \end{enumerate}
 
 \noindent
-Together, these pointers allow the system to navigate the tree structure without requiring a separate stack. The approach fundamentally works by leaving "breadcrumbs" in the form of modified pointers that enable retracing steps back up the tree after descending.
+Together, these pointers allow the system to navigate the tree structure without requiring a separate stack. The approach fundamentally works by leaving ``breadcrumbs" in the form of modified pointers that enable retracing steps back up the tree after descending.
 
 \subsubsection{Breadcrumb Trail Implementation}
 
@@ -244,7 +249,7 @@ This mechanism ensures that:
 
 \subsubsection{Memory Traversal Control}
 
-The Memory Traversal Unit (MTU) serves as the master controller for the NockPU, orchestrating the overall execution flow. It performs several key functions:
+The Memory Traversal Unit (\textsc{mtu}) serves as the master controller for the NockPU, orchestrating the overall execution flow. It performs several key functions:
 
 \begin{enumerate}
   \item Initiates tree traversal to find nodes marked for execution
@@ -254,11 +259,11 @@ The Memory Traversal Unit (MTU) serves as the master controller for the NockPU, 
 \end{enumerate}
 
 \noindent
-The MTU operates according to a finite state machine that manages the complex coordination between memory operations, tree traversal, and execution control. The state machine includes states for memory access initiation, traversal coordination, execution delegation, and result handling. State transitions are triggered by completion signals from subordinate modules, memory operation acknowledgments, and the detection of execution markers within the traversed tree structure. This state-driven approach ensures that all memory operations complete properly before proceeding and that control flow remains deterministic throughout the computation process.
+The \textsc{mtu} operates according to a finite state machine that manages the complex coordination between memory operations, tree traversal, and execution control. The state machine includes states for memory access initiation, traversal coordination, execution delegation, and result handling. State transitions are triggered by completion signals from subordinate modules, memory operation acknowledgments, and the detection of execution markers within the traversed tree structure. This state-driven approach ensures that all memory operations complete properly before proceeding and that control flow remains deterministic throughout the computation process.
 
 \subsubsection{Execute Module}
 
-The Execute module handles the reduction of Nock operations when triggered by the MTU. It receives the address and data for a cell marked for execution, performs the appropriate transformation according to the Nock operation code, and returns control to the MTU when complete.
+The Execute module handles the reduction of Nock operations when triggered by the \textsc{mtu}. It receives the address and data for a cell marked for execution, performs the appropriate transformation according to the Nock operation code, and returns control to the \textsc{mtu} when complete.
 
 This module contains specialized logic for each Nock operator (0 through 11), implementing their specific reduction rules. For operators that generate nested executions, the Execute module restructures the memory to reflect the transformed computation and marks the relevant cells for future execution.
 
@@ -267,10 +272,10 @@ This module contains specialized logic for each Nock operator (0 through 11), im
 In addition to the core Execute module, the NockPU includes several specialized modules for specific operations:
 
 \begin{itemize}
-  \item \textbf{Cell Block}: Handles type checking for the cell operator (op code 3)
-  \item \textbf{Increment Block}: Implements increment operations (op code 4)
-  \item \textbf{Equal Block}: Performs equality comparisons (op code 5)
-  \item \textbf{Edit Block}: Handles tree modification for the replace operator (op code 10)
+  \item \textbf{Cell Block}: Handle type checking for the cell operator (opcode 3)
+  \item \textbf{Increment Block}: Implement increment operations (opcode 4)
+  \item \textbf{Equal Block}: Perform equality comparisons (opcode 5)
+  \item \textbf{Edit Block}: Handle tree modification for the replace operator (opcode 10)
 \end{itemize}
 
 \noindent
@@ -363,7 +368,11 @@ This approach exemplifies the NockPU's philosophy of implementing complex operat
 
 \subsubsection{Conditional Operation Implementation}
 
-The conditional operation (\texttt{*[a 6 b c d]}) is particularly challenging due to its branching nature. In the NockPU, it is implemented by constructing the equivalent expression \texttt{*[a *[[c d] 0 *[[2 3] 0 *[a 4 4 b]]]]} directly in memory.
+The conditional operation (\texttt{*[a 6 b c d]}) is particularly challenging due to its branching nature. In the NockPU, it is implemented by constructing the equivalent expression 
+\begin{lstlisting}[style=listingblock]
+*[a *[[c d] 0 *[[2 3] 0 *[a 4 4 b]]]]
+\end{lstlisting}
+directly in memory.
 
 This approach, while computationally expensive, maintains semantic equivalence with the Nock specification and demonstrates how even complex operations can be expressed through graph transformation rather than traditional control flow.
 
@@ -404,9 +413,9 @@ This approach allows for dynamic allocation without requiring complex memory man
 The memory architecture is designed to optimize the prevalent access patterns in Nock execution:
 
 \begin{enumerate}
-  \item \textbf{Cell-Based Memory Model}: Each memory word represents a complete cell containing both head and tail components within the 64-bit word structure. Single atoms are represented as cells \texttt{[a NIL]}, where NIL is the maximum direct atom value (28-bits).
+  \item \textbf{Cell-Based Memory Model}: Each memory word represents a complete cell containing both head and tail components within the 64-bit word structure. Single atoms are represented as cells \texttt{[a NIL]}, where \textsc{nil} is the maximum direct atom value (28-bits).
   \item \textbf{Parallel Memory Operations}: The design allows up to three memory operations per processor cycle: two reads and one write, enabling efficient traversal and manipulation of tree structures.
-  \item \textbf{Memory Management Unit (MMU)}: The NockPU is shielded from off-chip memory complexity through an MMU that handles the translation between the processor's cell-based addressing and the underlying memory hierarchy.
+  \item \textbf{Memory Management Unit (\textsc{mmu})}: The NockPU is shielded from off-chip memory complexity through an \textsc{mmu} that handles the translation between the processor's cell-based addressing and the underlying memory hierarchy.
 \end{enumerate}
 
 \section{Evaluation and Analysis}
@@ -475,7 +484,7 @@ Slot & Depth 7 & 156 & 3.12 μs \\
 \end{table}
 
 \noindent
-The benchmark results reveal several key performance characteristics of the NockPU architecture. Simple operations such as equality testing complete in hundreds of cycles, while complex recursive operations like the Ackermann function require millions of cycles due to extensive intermediate structure creation. The 1024-word memory constraint creates a distinctive "step function" behavior in the computational complexity analysis: when operations exceed available memory, garbage collection cycles introduce significant overhead, causing performance to degrade in discrete steps rather than smooth progression.
+The benchmark results reveal several key performance characteristics of the NockPU architecture. Simple operations such as equality testing complete in hundreds of cycles, while complex recursive operations like the Ackermann function require millions of cycles due to extensive intermediate structure creation. The 1024-word memory constraint creates a distinctive ``step function" behavior in the computational complexity analysis: when operations exceed available memory, garbage collection cycles introduce significant overhead, causing performance to degrade in discrete steps rather than smooth progression.
 
 This memory-bounded performance profile is particularly evident in recursive operations, where the combination of exponential intermediate structure growth and periodic garbage collection creates compound performance effects. The deterministic nature of the architecture ensures consistent timing for identical operations, but the interplay between memory consumption and collection cycles makes performance prediction dependent on both algorithmic complexity and memory utilization patterns. These characteristics distinguish the NockPU's performance profile from traditional architectures, where performance typically scales more predictably with computational complexity.
 
@@ -551,24 +560,24 @@ This work suggests that specialized architectures for specific computational par
 
 The deterministic nature of Nock, combined with the potential power efficiency of specialized hardware, suggests applications in low-power computing environments where predictability is valued over raw performance.
 
-Preliminary analysis suggests that a dedicated NockPU could offer significant power efficiency advantages over general-purpose CPUs running Nock interpreters. The specialized nature of the architecture eliminates much of the overhead associated with general-purpose instruction decoding, branch prediction, and speculative execution. Additionally, the deterministic execution model prevents the power consumption variability that characterizes modern CPUs with dynamic frequency scaling and complex power management.
+Preliminary analysis suggests that a dedicated NockPU could offer significant power efficiency advantages over general-purpose \textsc{cpu}s running Nock interpreters. The specialized nature of the architecture eliminates much of the overhead associated with general-purpose instruction decoding, branch prediction, and speculative execution. Additionally, the deterministic execution model prevents the power consumption variability that characterizes modern \textsc{cpu}s with dynamic frequency scaling and complex power management.
 
 Future work should include comprehensive power analysis and optimization of the architecture for low-power operation, particularly focusing on minimizing memory access energy and optimizing the garbage collection process for power efficiency.
 
 \subsubsection{Verifiable Computing}
 
-The simplicity and determinism of the NockPU architecture could make it easier to formally verify than complex general-purpose CPUs, opening possibilities for applications requiring high assurance of correctness.
+The simplicity and determinism of the NockPU architecture could make it easier to formally verify than complex general-purpose \textsc{cpu}s, opening possibilities for applications requiring high assurance of correctness.
 
 The limited instruction set, deterministic execution model, and absence of speculative execution or complex branch prediction reduce the verification burden compared to modern processors. Applications in safety-critical systems, cryptographic processing, or environments requiring audit trails could benefit from this simplified verification process. However, the practical deployment of such systems would need to balance the verification advantages against the performance limitations inherent in the current implementation.
 
 \subsection{Comparison with Traditional Architectures}
 
-When compared to traditional CPU architectures, the NockPU reveals fundamental tradeoffs:
+When compared to traditional \textsc{cpu} architectures, the NockPU reveals fundamental tradeoffs:
 
 \begin{enumerate}
-  \item \textbf{Performance vs. Simplicity}: The NockPU sacrifices raw performance for semantic clarity and simplicity.
-  \item \textbf{Flexibility vs. Specialization}: General-purpose CPUs offer flexibility across computing paradigms, while the NockPU is specialized for combinator reduction.
-  \item \textbf{Memory Efficiency vs. Semantic Purity}: The NockPU's approach to computation requires more memory operations than optimized imperative code.
+  \item \textbf{Performance vs.\ Simplicity}: The NockPU sacrifices raw performance for semantic clarity and simplicity.
+  \item \textbf{Flexibility vs.\ Specialization}: General-purpose \textsc{cpu}s offer flexibility across computing paradigms, while the NockPU is specialized for combinator reduction.
+  \item \textbf{Memory Efficiency vs.\ Semantic Purity}: The NockPU's approach to computation requires more memory operations than optimized imperative code.
 \end{enumerate}
 
 \noindent
