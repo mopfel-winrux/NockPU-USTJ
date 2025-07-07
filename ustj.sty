@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{calc} % for \heightof in \tombstone
+\usepackage{xcolor}
 
 \usepackage{mathspec}
 \setmathtt[Scale=MatchLowercase]{Urbit Sans Mono TT SemiBold}
@@ -14,8 +15,10 @@
 \newfontfamily\monofont{Urbit Sans Mono TT SemiBold}[Scale=MatchLowercase]
 \renewcommand{\setmonofont}{\monofont}
 \renewcommand{\texttt}[1]{{\monofont #1}}
+\newfontfamily{\textmb}{Urbit Sans Mono TT Bold}[Scale=MatchLowercase]
+\newfontfamily{\textmt}{Urbit Sans Mono TT Light}[Scale=MatchLowercase]
 % Define a new font family for small caps with FakeSlant
-\newfontfamily\slantedsmallcapsfont{Linux Libertine O}[
+\newfontfamily\slantedsmallcapsfont{Libertinus Serif}[
     FakeSlant = 0.1 % Adjust the slant amount as needed
 ]
 % Redefine \textsc to make small caps 25% larger
@@ -24,7 +27,7 @@
 \newcommand{\ssc}[1]{{\slantedsmallcapsfont\textsc{#1}}}
 
 \usepackage{listings}
-\usepackage[dvipsnames, table]{xcolor}
+\usepackage[dvipsnames]{xcolor}
 \lstdefinelanguage{Hoon}
 {
   alsoletter={
@@ -314,3 +317,5 @@
     \thispagestyle{empty}%
     \addtocounter{page}{-1}%
     \newpage}
+
+\usepackage{colortbl}

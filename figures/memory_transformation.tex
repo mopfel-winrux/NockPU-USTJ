@@ -2,7 +2,7 @@
 \centering
 
 % Before state
-\textbf{Before: Memory State for \\ *[[50 51] [2 [0 3] [1 [4 0 1]]]]}
+{\urbitfont\textbf{Before: Memory State for \\ \textmb{*[[50 51] [2 [0 3] [1 [4 0 1]]]]}}}
 
 \vspace{0.3cm}
 
@@ -10,22 +10,22 @@
 \hline
 \textbf{Address} & \textbf{Tag Bits} & \textbf{Head} & \textbf{Tail} \\
 \hline\hline
-0x00 & 0x00 & 0x0000000 & 0x0000009 \\
-0x01 & 0x80 & 0x0000002 & 0x0000003 \\
-0x02 & 0x03 & \textbf{0x0000032} & \textbf{0x0000033} \\
-0x03 & 0x02 & \underline{0x0000002} & 0x0000004 \\
-0x04 & 0x00 & 0x0000005 & 0x0000006 \\
-0x05 & 0x03 & \underline{0x0000000} & \textbf{0x0000003} \\
-0x06 & 0x02 & \underline{0x0000001} & 0x0000007 \\
-0x07 & 0x02 & \underline{0x0000004} & 0x0000008 \\
-0x08 & 0x02 & \underline{0x0000000} & \textbf{0x0000001} \\
+\texttt{0x00} & \texttt{0x00} & \textmt{0x0000000} & \textmt{0x0000009} \\
+\texttt{0x01} & \texttt{0x80} & \textmt{0x0000002} & \textmt{0x0000003} \\
+\texttt{0x02} & \texttt{0x03} & \textmb{0x0000032} & \textmb{0x0000033} \\
+\texttt{0x03} & \texttt{0x02} & \underline{\textmt{0x0000002}} & \textmt{0x0000004} \\
+\texttt{0x04} & \texttt{0x00} & \textmt{0x0000005} & \texttt{0x0000006} \\
+\texttt{0x05} & \texttt{0x03} & \underline{\textmt{0x0000000}} & \textmb{0x0000003} \\
+\texttt{0x06} & \texttt{0x02} & \underline{\textmt{0x0000001}} & \textmt{0x0000007} \\
+\texttt{0x07} & \texttt{0x02} & \underline{\textmt{0x0000004}} & \textmt{0x0000008} \\
+\texttt{0x08} & \texttt{0x02} & \underline{\textmt{0x0000000}} & \textmb{0x0000001} \\
 \hline
 \end{tabular}
 
 \vspace{0.5cm}
 
 % After state
-\textbf{After: Memory State for \\ *[*[[50 51] [0 3]] *[[50 51] [1 [4 0 1]]]]}
+{\urbitfont\textbf{After: Memory State for \\ \textmb{*[*[[50 51] [0 3]] *[[50 51] [1 [4 0 1]]]]}}}
 
 \vspace{0.3cm}
 
@@ -33,20 +33,20 @@
 \hline
 \textbf{Address} & \textbf{Tag Bits} & \textbf{Head} & \textbf{Tail} \\
 \hline\hline
-0x00 & 0x00 & 0x0000000 & 0x0000009 \\
-\rowcolor{lightgray}
-0x01 & 0x80 & 0x0000009 & 0x000000A \\
-0x02 & 0x03 & \textbf{0x0000032} & \textbf{0x0000033} \\
-0x03 & 0x02 & \underline{0x0000002} & 0x0000004 \\
-0x04 & 0x00 & 0x0000005 & 0x0000006 \\
-0x05 & 0x03 & \underline{0x0000000} & \textbf{0x0000003} \\
-0x06 & 0x02 & \underline{0x0000001} & 0x0000007 \\
-0x07 & 0x02 & \underline{0x0000004} & 0x0000008 \\
-0x08 & 0x02 & \underline{0x0000000} & \textbf{0x0000001} \\
-\rowcolor{lightgray}
-0x09 & 0x80 & 0x0000002 & 0x0000005 \\
-\rowcolor{lightgray}
-0x0A & 0x80 & 0x0000002 & 0x0000006 \\
+\texttt{0x00} & \texttt{0x00} & \textmt{0x0000000} & \textmt{0x0000009} \\
+\rowcolor{gray!20}
+\texttt{0x01} & \texttt{0x80} & \textmt{0x0000009} & \textmt{0x000000A} \\
+\texttt{0x02} & \texttt{0x03} & \textmb{0x0000032} & \textmb{0x0000033} \\
+\texttt{0x03} & \texttt{0x02} & \underline{\textmt{0x0000002}} & \textmt{0x0000004} \\
+\texttt{0x04} & \texttt{0x00} & \textmt{0x0000005} & \textmt{0x0000006} \\
+\texttt{0x05} & \texttt{0x03} & \underline{\textmt{0x0000000}} & \textmb{0x0000003} \\
+\texttt{0x06} & \texttt{0x02} & \underline{\textmt{0x0000001}} & \textmt{0x0000007} \\
+\texttt{0x07} & \texttt{0x02} & \underline{\textmt{0x0000004}} & \textmt{0x0000008} \\
+\texttt{0x08} & \texttt{0x02} & \underline{\textmt{0x0000000}} & \textmb{0x0000001} \\
+\rowcolor{gray!20}
+\texttt{0x09} & \texttt{0x80} & \textmt{0x0000002} & \textmt{0x0000005} \\
+\rowcolor{gray!20}
+\texttt{0x0A} & \texttt{0x80} & \textmt{0x0000002} & \textmt{0x0000006} \\
 \hline
 \end{tabular}
 
@@ -56,13 +56,13 @@
 \small
 \textbf{Key:}
 \begin{itemize}
-\item \textbf{Bold values}: Data atoms (direct values like 50, 51, 3, 1)
-\item \underline{Underlined values}: Opcodes (Nock operation codes like 2, 0, 4)
-\item Normal values: Pointers to other memory locations
-\item Grayed cells are memory address that have been modified
+  \item {\textmb Bold values}: Data atoms (direct values like 50, 51, 3, 1)
+  \item \underline{\texttt{Underlined values}}: Opcodes (like Nock 2, 0, 4)
+  \item {\textmt Normal values}: Pointers to other memory locations
+  \item \colorbox{gray!20}{\textmt{Grayed cells}}: Memory address that have been modified
 \end{itemize}
 \end{minipage}
 
-\caption{Memory transformation for Nock Opcode 2 (Evaluation) demonstrating the conversion from opcode structure to evaluation branches, showing how \texttt{*[a 2 b c]} becomes \texttt{*[*[a b] *[a c]]} through memory graph restructuring.}
+\caption{Memory transformation for Nock opcode 2 (Evaluation) demonstrating the conversion from opcode structure to evaluation branches, showing how \texttt{*[a 2 b c]} becomes \texttt{*[*[a b] *[a c]]} through memory graph restructuring.}
 \label{fig:memory-transformation}
 \end{figure}
