@@ -21,8 +21,8 @@
 \fancyhead{}
 \fancyfoot[L]{{\footnotesize
               %% We toggle between these:
-              Manuscript submitted for review.\\
-              % {\it Urbit Systems Technical Journal} I:1 (2024):  1–3. \\
+              % Manuscript submitted for review.\\
+              {\it Urbit Systems Technical Journal} II:1 (2025):  99–130. \\
               ~ \\
               Address author correspondence to \authorpatp.
               }}
@@ -30,11 +30,11 @@
 %  Arrange subsequent pages:
 \fancyhf{}
 \fancyhead[LE]{{\urbitfont Urbit Systems Technical Journal}}
-\fancyhead[RO]{Implementation of Nock Combinator Logic in Hardware}
+\fancyhead[RO]{NockPU:  Nock in Hardware}
 \fancyfoot[LE,RO]{\thepage}
 
 %%MANUSCRIPT
-\title{Implementation of Nock Combinator Logic in Hardware: The NockPU Project}
+\title{An Implementation of Nock Combinator Logic in Hardware: The NockPU Project}
 \author{\authorpatp \\ \affiliation}
 \date{}
 
@@ -50,7 +50,7 @@ This paper presents the design, implementation, and evaluation of NockPU, a hard
 
 % We will adjust page numbering in final editing.
 \pagenumbering{arabic}
-\setcounter{page}{1}
+\setcounter{page}{99}
 
 \tableofcontents
 
@@ -64,7 +64,7 @@ The motivation behind this research was initially quite straightforward: to addr
 
 \subsection{Related Work and Motivation}
 
-Hardware implementation of functional languages has historical precedent, with notable examples including the \textsc{skim} (S, K, I reduction machine) developed at Cambridge in the 1970s and more recent work on The Reduceron at the University of York. However, these projects have typically focused on more traditional functional programming languages rather than the minimal, axiomatic approach of Nock. Additionally, most prior research has not sufficiently addressed the challenges of scaling such systems to utilize both on-chip and off-chip memory effectively.
+Hardware implementation of functional languages has historical precedent, with notable examples including the \textsc{skim} (\textsc{s}, \textsc{k}, \textsc{i} reduction machine) developed at Cambridge in the 1970s and more recent work on The Reduceron at the University of York. However, these projects have typically focused on more traditional functional programming languages rather than the minimal, axiomatic approach of Nock. Additionally, most prior research has not sufficiently addressed the challenges of scaling such systems to utilize both on-chip and off-chip memory effectively.
 
 \subsection{Project Goals and Approach}
 
@@ -105,9 +105,9 @@ The design process involves:
 
 Several significant projects have attempted to implement functional programming languages directly in hardware:
 
-\textbf{\textsc{skim} (S, K, I reduction machine)}: Developed by Clarke et al. at Cambridge in the 1970s and 1980s \citep{Clarke1980, Norman1984}, \textsc{skim} implemented combinatory logic directly in hardware. It pioneered many of the techniques for graph reduction that influenced later work.
+\textbf{\textsc{skim} (\textsc{s}, \textsc{k}, \textsc{i} reduction machine)}: Developed by Clarke et al. at Cambridge in the 1970s and 1980s \citep{Clarke1980, Norman1984}, \textsc{skim} implemented combinatory logic directly in hardware. It pioneered many of the techniques for graph reduction that influenced later work.
 
-\textbf{The Reduceron}: More recently, work at the University of York by Naylor and Runciman has produced The Reduceron \citep{Naylor2008, Naylor2009}, an \textsc{fpga}-based graph reduction machine initially designed for executing Haskell programs using basic combinators (S, K, I, B, C). Later versions moved to more complex supercombinator implementations.
+\textbf{The Reduceron}: More recently, work at the University of York by Naylor and Runciman has produced The Reduceron \citep{Naylor2008, Naylor2009}, an \textsc{fpga}-based graph reduction machine initially designed for executing Haskell programs using basic combinators (\textsc{s}, \textsc{k}, \textsc{i}, \textsc{b}, \textsc{c}). Later versions moved to more complex supercombinator implementations.
 
 While these implementations provide valuable precedent, they differ from the NockPU in several important ways:
 \begin{enumerate}
