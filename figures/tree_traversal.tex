@@ -4,7 +4,7 @@
     scale=0.85,
     transform shape,
     cell/.style={circle, draw=black, thick, fill=white, minimum size=0.9cm, font=\scriptsize, label={[rectangle, fill=white, text depth=0.2ex, inner sep=2pt, font=\scriptsize, align=center]center:#1}},
-    atom/.style={rectangle, draw=black, thick, fill=white, pattern=dots, pattern color=black, minimum size=0.7cm, font=\scriptsize, label={[rectangle, fill=white, text depth=0.2ex, inner sep=2pt, font=\scriptsize, align=center]center:#1}},
+    atom/.style={rectangle, draw=black, thick, fill=white, pattern=none, pattern color=black, minimum size=0.7cm, font=\scriptsize, label={[rectangle, fill=white, text depth=0.2ex, inner sep=2pt, font=\scriptsize, align=center]center:#1}},
     pointer/.style={->, thick, black},
     breadcrumb/.style={->, thick, black, dashed},
     labelblock/.style={font=\tiny, above}
@@ -24,12 +24,12 @@
 % Left subtree
 \node[cell={Cell}] (left-a) at (-4, 0) {};
 \node[atom={42}] (left-atom-a) at (-4.7, -1) {};
-\node[atom={84}] (right-atom-a) at (-3.3, -1) {};
+\node[atom={84}] (right-atom-a) at (-3.5, -1) {};
 
 % Right subtree  
 \node[cell={Cell}] (right-a) at (-2, 0) {};
-\node[atom={99}] (right-left-a) at (-2.3, -1) {};
-\node[atom={12}] (right-right-a) at (-1.7, -1) {};
+\node[atom={99}] (right-left-a) at (-2.5, -1) {};
+\node[atom={12}] (right-right-a) at (-1.3, -1) {};
 
 % Initial pointers
 \draw[pointer] (root-a) -- (left-a) node[midway, left] {\tiny head};
@@ -46,21 +46,21 @@
 \node[font=\small\bfseries\urbitfont] at (3, 2.5) {B. Descending with Breadcrumbs};
 
 % Root cell (modified)
-\node[cell={Cell}, pattern=north west lines] (root-b) at (3, 1.5) {};
+\node[cell={Cell}, pattern={north east lines}] (root-b) at (3, 1.5) {};
 \node[labelblock] at (3, 2) {Root (modified)};
 
 % Left subtree
 \node[cell={Cell}] (left-b) at (2, 0) {};
 \node[atom={42}] (left-atom-b) at (1.3, -1) {};
-\node[atom={84}] (right-atom-b) at (2.7, -1) {};
+\node[atom={84}] (right-atom-b) at (2.5, -1) {};
 
 % Right subtree  
 \node[cell={Cell}] (right-b) at (4, 0) {};
-\node[atom={99}] (right-left-b) at (3.7, -1) {};
-\node[atom={12}] (right-right-b) at (4.3, -1) {};
+\node[atom={99}] (right-left-b) at (3.5, -1) {};
+\node[atom={12}] (right-right-b) at (4.7, -1) {};
 
 % Modified pointers (breadcrumb in root)
-\draw[breadcrumb] (root-b) to[bend left=40] (1, 2.2) node[midway, above] {\tiny breadcrumb};
+\draw[breadcrumb] (root-b) to [bend right=20] (2, 0.45) node[left, above, xshift=-10pt, yshift=10pt] {\tiny breadcrumb};
 \draw[pointer] (root-b) -- (right-b) node[midway, right] {\tiny tail};
 \draw[pointer] (left-b) -- (left-atom-b) node[midway, left] {\tiny head};
 \draw[pointer] (left-b) -- (right-atom-b) node[midway, right] {\tiny tail};
@@ -74,21 +74,21 @@
 \node[font=\small\bfseries\urbitfont] at (-3, -2.5) {C. Return via Breadcrumbs};
 
 % Root cell (restored)
-\node[cell=Cell, draw=black, thick, fill=white, pattern=dots, pattern color=black, ] (root-c) at (-3, -3.5) {};
+\node[cell=Cell, draw=black, thick, fill=white, pattern=crosshatch, pattern color=black, ] (root-c) at (-3, -3.5) {};
 \node[labelblock] at (-3, -3) {Root (restored)};
 
 % Left subtree (visited)
-\node[cell={Cell}, fill=white, pattern=crosshatch, pattern color=black,] (left-c) at (-4, -5) {};
-\node[atom={42}, fill=white, pattern=crosshatch, pattern color=black,] (left-atom-c) at (-4.7, -6) {42};
-\node[atom={84}, fill=white, pattern=crosshatch, pattern color=black,] (right-atom-c) at (-3.3, -6) {84};
+\node[cell={Cell}, fill=white, pattern=north west lines, pattern color=black,] (left-c) at (-4, -5) {};
+\node[atom={42}, fill=white, pattern=north west lines, pattern color=black,] (left-atom-c) at (-4.7, -6) {42};
+\node[atom={84}, fill=white, pattern=north west lines, pattern color=black,] (right-atom-c) at (-3.5, -6) {84};
 
 % Right subtree  
 \node[cell={Cell}] (right-c) at (-2, -5) {};
-\node[atom={99}] (right-left-c) at (-2.3, -6) {};
-\node[atom={12}] (right-right-c) at (-1.7, -6) {};
+\node[atom={99}] (right-left-c) at (-2.5, -6) {};
+\node[atom={12}] (right-right-c) at (-1.3, -6) {};
 
 % Restored pointers
-\draw[pointer] (root-c) -- (left-c) node[midway, left] {\tiny head};
+\draw[pointer] (root-c) -- (left-c) node[midway, right] {\tiny head};
 \draw[pointer] (root-c) -- (right-c) node[midway, right] {\tiny tail};
 \draw[pointer] (left-c) -- (left-atom-c) node[midway, left] {\tiny head};
 \draw[pointer] (left-c) -- (right-atom-c) node[midway, right] {\tiny tail};
@@ -96,7 +96,8 @@
 \draw[pointer] (right-c) -- (right-right-c) node[midway, right] {\tiny tail};
 
 % Breadcrumb trail indicator
-\draw[breadcrumb] (-4, -5) to[bend left=30] (-3, -3.5) node[midway, below] {\tiny followed breadcrumb};
+\draw[breadcrumb] (-4, -4.5) to[bend left=20] (-3.45, -3.65) node[left, above, xshift=-25pt, yshift=-5pt] {\tiny follow back};
+% \draw[breadcrumb] (root-b) to [bend right=20] (2, 0.45) node[midway, left] {\tiny breadcrumb};
 
 % Current position indicator (back at root, ready for right subtree)
 % \node[fill=black, circle, minimum size=0.25cm] at (-2.6, -3.1) {};
@@ -109,17 +110,18 @@
 \\[0.4cm]
 % \textbf{Legend:}\\
 \begin{tabular}{cl}
-\textcolor{black}{$\xrightarrow{\textcolor{white}{h.}}$} & Normal pointers \\  % width adjusted to align with dasharrow
-\textcolor{black}{$\dasharrow$} & Breadcrumb pointers \\
-\textcolor{black}{$\bullet$} & Current position (P) \\
+\textcolor{black}{$\xrightarrow{\textcolor{white}{h.}}$} & Normal pointers \\[10pt]  % width adjusted to align with dasharrow
+\textcolor{black}{$\dasharrow$} & Breadcrumb pointers \\[10pt]
+ & Current position (breadcrumb) \\
 \end{tabular}
 };
+\node[draw=black, thick, fill=white, circle, inner sep=0.05, minimum size=0.1cm] at (0.675, -5.35) {P};
 
 \end{tikzpicture}
 \caption{Stackless Tree Traversal Sequence demonstrating breadcrumb-based navigation without a traditional call stack.  The NockPU implements tree traversal without a stack by modifying pointers to create breadcrumb trails.  Sequence:\\
-\textcolor{white}{.}\quad A. Initial tree state with root and subtrees. \\
-\textcolor{white}{.}\quad B. Descend into the left subtree leaving breadcrumb. \\
-\textcolor{white}{.}\quad C. Follow breadcrumb back to root to continue with right.
+\textcolor{white}{.}\, A. \,Initial tree state with root and subtrees. \\
+\textcolor{white}{.}\, B. \,Descend into the left subtree leaving breadcrumb. \\
+\textcolor{white}{.}\, C. \,Follow breadcrumb back to root to continue with right.
 }
 \label{fig:tree-traversal}
 \end{figure}

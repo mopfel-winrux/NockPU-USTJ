@@ -232,7 +232,7 @@ The stackless traversal mechanism operates by temporarily modifying tree pointer
 
 \input{figures/tree_traversal}
 
-The traversal sequence shown in the figure illustrates the three-phase operation: initialization, descent with breadcrumb creation, and return via breadcrumb following. In panel A, the tree exists in its canonical form with normal pointer relationships. Panel B shows the critical breadcrumb creation phase, where the processor modifies the root cell's head pointer to store a return path before descending into the left subtree. Panel C demonstrates the return mechanism, where the breadcrumb is followed back to the root, restoring the original pointer structure while marking the left subtree as visited.
+The traversal sequence shown in the figure illustrates the three-phase operation: initialization, descent with breadcrumb creation, and return via breadcrumb following. In subfigure A, the tree exists in its canonical form with normal pointer relationships. Subfigure B shows the critical breadcrumb creation phase, where the processor modifies the root cell's head pointer to store a return path before descending into the left subtree. Subfigure C demonstrates the return mechanism, in which the breadcrumb is followed back to the root, restoring the original pointer structure while marking the left subtree as visited.
 
 As the processor traverses the tree, it modifies the memory cells it visits, effectively leaving a trail that can be followed back up. When descending into a subtree, the processor redirects the pointer in the left part of the cell to point to the parent node, from which execution flow just came. This creates a pathway back up the tree.
 

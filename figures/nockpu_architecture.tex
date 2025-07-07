@@ -65,13 +65,13 @@
 \draw[bidiarrow] (memmux) -- (gc) node[midway, right] {\scriptsize gc mem};
 
 % Section labels positioned to avoid overlap with gc trigger line
-\node[above=1.2cm of mtu, font=\small\bfseries\urbitfont] {NockPU Core};
-\node[above=0.6cm of execute, font=\small\bfseries\urbitfont] {Execution Units};
-\node[above=0.6cm of memunit, font=\small\bfseries\urbitfont] {Memory Subsystem};
+\node[above=0.3cm of mtu, font=\small\bfseries\urbitfont] {NockPU Core};
+\node[above=0.3cm of execute, font=\small\bfseries\urbitfont] {Execution Units};
+\node[above=0.3cm of memunit, font=\small\bfseries\urbitfont] {Memory Subsystem};
 
 \end{tikzpicture}
-\vspace*{-0.5cm} % Adjust for footer space
-\caption{NockPU System Architecture Overview. The Memory Traversal Unit serves as the central controller, coordinating between execution modules and memory management components. Specialized operation blocks handle specific Nock opcodes, while the memory subsystem provides cell-based storage with integrated garbage collection. Bidirectional arrows (red) indicate control and data flow, while unidirectional arrows (blue) show dispatch operations.}
+% \vspace*{-0.5cm} % Adjust for footer space
+\caption{NockPU System Architecture Overview. The Memory Traversal Unit serves as the central controller, coordinating between execution modules and memory management components. Specialized operation blocks handle specific Nock opcodes, while the memory subsystem provides cell-based storage with integrated garbage collection. Bidirectional arrows (solid) indicate control and data flow, while one-way arrows (dashed) show dispatch operations.}
 \label{fig:nockpu-architecture}
 \end{figure}
 \end{landscape}
