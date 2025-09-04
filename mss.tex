@@ -9,6 +9,7 @@
 \usetikzlibrary{positioning}
 \usetikzlibrary{patterns}
 \usepackage{pdflscape}
+\renewcommand{\headrulewidth}{0pt}
 
 \addbibresource{mss.bib}
 
@@ -29,9 +30,9 @@
 }
 %  Arrange subsequent pages:
 \fancyhf{}
-\fancyhead[LE]{{\urbitfont Urbit Systems Technical Journal}}
-\fancyhead[RO]{NockPU:  Nock in Hardware}
-\fancyfoot[LE,RO]{\thepage}
+% \fancyhead[LE]{{\urbitfont Urbit Systems Technical Journal}}
+% \fancyhead[RO]{NockPU:  Nock in Hardware}
+% \fancyfoot[LE,RO]{}
 
 %%MANUSCRIPT
 \title{An Implementation of Nock Combinator Logic in Hardware: The NockPU Project}
@@ -56,7 +57,8 @@ This paper presents the design, implementation, and evaluation of NockPU, a hard
 
 \section{Introduction}
 
-Combinator calculi represent a fundamental approach to computation based on the application and reduction of combinators -- operators that compose and transform data without requiring named variables. Nock is a specific combinator calculus developed as the foundation of Urbit, a clean-slate computing platform. It provides a deterministic, stateless computing environment that trades performance for perfect semantic clarity. While Nock interpreters typically run in software environments (e.g., the C-based Vere interpreter and Rust-based NockVM interpreter for Urbit), little exploration has been done regarding the direct implementation of Nock in hardware.
+\sloppy
+Combinator calculi represent a fundamental approach to \mbox{computation} based on the application and reduction of combinators -- operators that compose and transform data without requiring named variables. Nock is a specific combinator calculus developed as the foundation of Urbit, a clean-slate computing platform. It provides a deterministic, stateless computing environment that trades performance for perfect semantic clarity. While Nock interpreters typically run in software environments (e.g., the C-based Vere interpreter and Rust-based NockVM interpreter for Urbit), little exploration has been done regarding the direct implementation of Nock in hardware.
 
 Implementing Nock in hardware presents unique challenges fundamentally different from traditional assembly languages. While conventional processors operate on byte buffers stored in linear memory arrays, Nock computation operates on \textit{nouns} -- recursive tree structures that exist as linked data rather than contiguous memory blocks. This fundamental difference means that traditional hardware architectures, optimized for sequential memory access patterns and fixed-width data types, are poorly suited for the tree traversal and dynamic memory allocation patterns inherent to Nock execution. The challenge lies not merely in implementing the Nock operations themselves, but in developing memory representations and traversal mechanisms that can efficiently handle the recursive, pointer-based data structures that define Nock's computational model.
 
@@ -105,9 +107,9 @@ The design process involves:
 
 Several significant projects have attempted to implement functional programming languages directly in hardware:
 
-\textbf{\textsc{skim} (\textsc{s}, \textsc{k}, \textsc{i} reduction machine)}: Developed by Clarke et al. at Cambridge in the 1970s and 1980s \citep{Clarke1980, Norman1984}, \textsc{skim} implemented combinatory logic directly in hardware. It pioneered many of the techniques for graph reduction that influenced later work.
+\textbf{\textsc{skim} (\textsc{s}, \textsc{k}, \textsc{i} reduction machine)}: Developed by Clarke et al.\ at Cambridge in the 1970s and 1980s (\citet{Clarke1980}; \citet{Norman1984}), \textsc{skim} implemented combinatory logic directly in hardware. It pioneered many of the techniques for graph reduction that influenced later work.
 
-\textbf{The Reduceron}: More recently, work at the University of York by Naylor and Runciman has produced The Reduceron \citep{Naylor2008, Naylor2009}, an \textsc{fpga}-based graph reduction machine initially designed for executing Haskell programs using basic combinators (\textsc{s}, \textsc{k}, \textsc{i}, \textsc{b}, \textsc{c}). Later versions moved to more complex supercombinator implementations.
+\textbf{The Reduceron}: More recently, work at the University of York by Naylor and Runciman has produced The Reduceron (\citet{Naylor2008}; \citet{Naylor2009}), an \textsc{fpga}-based graph reduction machine initially designed for executing Haskell programs using basic combinators (\textsc{s}, \textsc{k}, \textsc{i}, \textsc{b}, \textsc{c}). Later versions moved to more complex supercombinator implementations.
 
 While these implementations provide valuable precedent, they differ from the NockPU in several important ways:
 \begin{enumerate}
@@ -175,7 +177,7 @@ Table~\ref{tab:tag-bits} provides a complete specification of the 8-bit tag fiel
 
 \begin{table}[h]
 \centering
-\caption{NockPU Tag Bits Layout (Bits 63-56)}
+\caption{NockPU Tag Bits Layout (Bits 63--56)}
 \label{tab:tag-bits}
 \begin{tabular}{|c|l|p{6cm}|}
 \hline
@@ -287,7 +289,7 @@ The NockPU includes a comprehensive error detection and reporting system to main
 
 \subsubsection{Garbage Collection Implementation}
 
-The NockPU implements a Cheney-style copying garbage collector based on the algorithm described by Clark \citep{Clark1976}. This implementation addresses the significant memory consumption challenges inherent in combinator reduction by reclaiming memory occupied by intermediate structures that are no longer reachable.
+The NockPU implements a Cheney-style copying garbage collector based on the algorithm described by \citet{Clark1976}. This implementation addresses the significant memory consumption challenges inherent in combinator reduction by reclaiming memory occupied by intermediate structures that are no longer reachable.
 
 The garbage collection process operates as follows:
 
@@ -413,7 +415,7 @@ This approach allows for dynamic allocation without requiring complex memory man
 The memory architecture is designed to optimize the prevalent access patterns in Nock execution:
 
 \begin{enumerate}
-  \item \textbf{Cell-Based Memory Model}: Each memory word represents a complete cell containing both head and tail components within the 64-bit word structure. Single atoms are represented as cells \texttt{[a NIL]}, where \textsc{nil} is the maximum direct atom value (28-bits).
+  \item \textbf{Cell-Based Memory Model}: Each memory word represents a complete cell containing both head and tail components within the 64-bit word structure. Single atoms are represented as cells \texttt{[a NIL]}, where \texttt{NIL} is the maximum direct atom value (28-bits).
   \item \textbf{Parallel Memory Operations}: The design allows up to three memory operations per processor cycle: two reads and one write, enabling efficient traversal and manipulation of tree structures.
   \item \textbf{Memory Management Unit (\textsc{mmu})}: The NockPU is shielded from off-chip memory complexity through an \textsc{mmu} that handles the translation between the processor's cell-based addressing and the underlying memory hierarchy.
 \end{enumerate}
@@ -591,7 +593,11 @@ This work presents a complete hardware implementation of Nock using established 
 
 The research identifies two primary challenges to efficient hardware Nock execution: excessive memory consumption due to intermediate structure creation during combinator reduction, and computational complexity arising from the graph transformation approach required by Nock's semantic model. The first challenge is successfully addressed through the implemented garbage collector, which prevents system crashes and maintains stability during complex computations. The second remains an area for future optimization.
 
-The implementation demonstrates that all twelve Nock operations can be realized in hardware through graph reduction techniques, establishing a complete foundation for Nock computation. While computational efficiency remains challenging, the core architectural approach—particularly the integration of garbage collection and cell-based memory management—provides a viable foundation for specialized functional computation that offers advantages in determinism and semantic clarity over general-purpose architectures.
+The implementation demonstrates that all twelve Nock operations can be realized in hardware through graph reduction techniques, establishing a complete foundation for Nock computation. While computational efficiency remains challenging, the core architectural approach—particularly the integration of garbage collection and cell-based memory management—provides a viable foundation for specialized functional computation that offers advantages in determinism and semantic clarity over general-purpose architectures. \tombstone
+
+\section*{Acknowledgments}
+
+The author would like to thank {\patp{master-morzod}} and {\patp{fodwyt-ragful}} for helping with many technical questions and {\patp{mister-todteg}} for funding this development.
 
 \printbibliography
 \end{document}
